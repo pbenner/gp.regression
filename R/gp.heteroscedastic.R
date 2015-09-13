@@ -7,7 +7,7 @@
 #' @param transform.inv inverse transformation of empirical variances
 #' @export
 
-new.gp.heteroscedastic <- function(gp, gp.h, transform = log, transform.inv = exp)
+new.gp.heteroscedastic <- function(gp, gp.h, transform = identity, transform.inv = identity)
 {
     stopifnot(length(mean) == 1)
 

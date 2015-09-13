@@ -77,4 +77,12 @@ where *xp* is the locations of the observations and *yp* contains the count stat
 
 ### Heteroscedastic Gaussian process
 
-    TODO
+Heteroscedasticity can be modeled with a second Gaussian process for the variance of the likelihood model. An example is given by
+
+	gp <- new.gp.heteroscedastic(
+		new.gp(1.0, kernel.exponential(5, 100)),
+		new.gp(1.0, kernel.exponential(10, 50),
+		       likelihood=new.likelihood("gamma", 1),
+		       link=new.link("logistic")))
+
+where the second Gaussian process uses a gamma likelihood model with a logistic link function.
