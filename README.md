@@ -85,4 +85,4 @@ Heteroscedasticity can be modeled with a second Gaussian process for the varianc
 		       likelihood=new.likelihood("gamma", 1),
 		       link=new.link("logistic")))
 
-where the second Gaussian process uses a gamma likelihood model with a logistic link function.
+where the second Gaussian process uses a gamma likelihood model in combination with a logistic link function.
