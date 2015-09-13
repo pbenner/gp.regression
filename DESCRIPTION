@@ -1,0 +1,30 @@
+Package: gp.regression
+Maintainer: Philipp Benner <philipp.benner@mis.mpg.de>
+License: GPL-2
+Title: Gaussian Process Regression
+Author: Philipp Benner <philipp.benner@mis.mpg.de>
+Description: Regression analysis with Gaussian Processes
+Version: 1.0-1
+Repository: CRAN
+Date/Publication: 2012-03-03 03:28:12
+Packaged: 2012-03-03 20:34:30 UTC; philipp
+Depends:
+    R (>= 2.10.0),
+    nnet,
+    mvtnorm,
+    Matrix,
+    ggplot2 (>= 0.9.3),
+    gridExtra (>= 0.9.1),
+    scales
+Date: 03-03-2012
+Collate:
+    'gp.R'
+    'gp.approximation.R'
+    'gp.heteroscedastic.R'
+    'gp.information.R'
+    'gp.likelihood.R'
+    'gp.link.R'
+    'gp.kernel.R'
+    'gp.plot.R'
+    'inverse.R'
+    'utility.R'

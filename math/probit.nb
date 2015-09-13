@@ -1,0 +1,287 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      8766,        278]
+NotebookOptionsPosition[      7757,        238]
+NotebookOutlinePosition[      8169,        254]
+CellTagsIndexPosition[      8126,        251]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Expectation and variance of the probit model", "Title",
+ CellChangeTimes->{{3.567962588960897*^9, 3.567962627491343*^9}},
+ Background->RGBColor[1, 0.85, 0.85]],
+
+Cell[TextData[{
+ "Expectation f(\[Mu],\[Sigma]) = ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubsuperscriptBox["\[Integral]", 
+     RowBox[{"-", "\[Infinity]"}], "\[Infinity]"], 
+    RowBox[{
+     RowBox[{"\[CapitalPhi]", "(", "y", ")"}], 
+     RowBox[{"N", "(", 
+      RowBox[{
+       RowBox[{"y", "|", "\[Mu]"}], ",", 
+       SuperscriptBox["\[Sigma]", "2"]}], ")"}], 
+     RowBox[{"\[DifferentialD]", "y"}]}]}], TraditionalForm]]]
+}], "Subtitle",
+ CellChangeTimes->{{3.567962588960897*^9, 3.567962627491343*^9}, 
+   3.567962698303564*^9, {3.567962817194962*^9, 3.567962822153339*^9}, {
+   3.56796285320261*^9, 3.5679629267335167`*^9}, {3.5679629632846193`*^9, 
+   3.567962969834215*^9}, {3.567963915277179*^9, 3.567963929320039*^9}},
+ Background->RGBColor[1, 0.85, 0.85]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"fa", "[", 
+   RowBox[{"\[Mu]_", ",", "\[Sigma]_"}], "]"}], ":=", 
+  RowBox[{"NIntegrate", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"CDF", "[", 
+      RowBox[{
+       RowBox[{"NormalDistribution", "[", "]"}], ",", "y"}], "]"}], 
+     RowBox[{"PDF", "[", 
+      RowBox[{
+       RowBox[{"NormalDistribution", "[", 
+        RowBox[{"\[Mu]", ",", "\[Sigma]"}], "]"}], ",", "y"}], "]"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"y", ",", 
+      RowBox[{"-", "\[Infinity]"}], ",", "\[Infinity]"}], "}"}]}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"fa", "[", 
+  RowBox[{
+   RowBox[{"-", "0.1"}], ",", "0.5"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.567952864593349*^9, 3.567952880164877*^9}, {
+  3.5679529417945147`*^9, 3.567952964614636*^9}, {3.567953323403339*^9, 
+  3.567953323917811*^9}, {3.567953468973743*^9, 3.567953492306253*^9}, {
+  3.5679535417386427`*^9, 3.567953542087987*^9}, {3.567962765977181*^9, 
+  3.56796277019175*^9}, {3.567963095306939*^9, 3.567963096016364*^9}, {
+  3.567963129243064*^9, 3.567963129683783*^9}}],
+
+Cell[BoxData["0.4643650372879473`"], "Output",
+ CellChangeTimes->{3.567963130588916*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"f", "[", 
+   RowBox[{"\[Mu]_", ",", "\[Sigma]_"}], "]"}], ":=", 
+  RowBox[{"CDF", "[", 
+   RowBox[{
+    RowBox[{"NormalDistribution", "[", 
+     RowBox[{"0", ",", 
+      SqrtBox[
+       RowBox[{"1", "+", 
+        SuperscriptBox["\[Sigma]", "2"]}]]}], "]"}], ",", "\[Mu]"}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"f", "[", 
+  RowBox[{
+   RowBox[{"-", "0.1"}], ",", "0.5"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.567953520015031*^9, 3.567953529431107*^9}, {
+  3.567963089147892*^9, 3.567963119098263*^9}}],
+
+Cell[BoxData["0.4643650372824013`"], "Output",
+ CellChangeTimes->{3.56796311961416*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Variance g(\[Mu],\[Sigma]) = ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubsuperscriptBox["\[Integral]", 
+     RowBox[{"-", "\[Infinity]"}], "\[Infinity]"], 
+    RowBox[{
+     RowBox[{
+      SuperscriptBox["\[CapitalPhi]", "2"], "(", "y", ")"}], 
+     RowBox[{"N", "(", 
+      RowBox[{
+       RowBox[{"y", "|", "\[Mu]"}], ",", 
+       SuperscriptBox["\[Sigma]", "2"]}], ")"}], 
+     RowBox[{"\[DifferentialD]", "y"}]}]}], TraditionalForm]]]
+}], "Subtitle",
+ CellChangeTimes->{{3.567962588960897*^9, 3.567962627491343*^9}, {
+   3.567962698303564*^9, 3.567962713213525*^9}, {3.5679630298666286`*^9, 
+   3.567963039517426*^9}, {3.567963919856752*^9, 3.567963936083282*^9}, {
+   3.649587011689912*^9, 3.649587029597973*^9}, 3.64958729939857*^9},
+ Background->RGBColor[1, 0.85, 0.85]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ga", "[", 
+   RowBox[{"\[Mu]_", ",", "\[Sigma]_"}], "]"}], ":=", 
+  RowBox[{"NIntegrate", "[", 
+   RowBox[{
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"CDF", "[", 
+       RowBox[{
+        RowBox[{"NormalDistribution", "[", "]"}], ",", "y"}], "]"}], "2"], 
+     RowBox[{"PDF", "[", 
+      RowBox[{
+       RowBox[{"NormalDistribution", "[", 
+        RowBox[{"\[Mu]", ",", "\[Sigma]"}], "]"}], ",", "y"}], "]"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"y", ",", 
+      RowBox[{"-", "\[Infinity]"}], ",", "\[Infinity]"}], "}"}]}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"ga", "[", 
+  RowBox[{
+   RowBox[{"-", "0.1"}], ",", "0.5"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.567953840029352*^9, 3.567953849226008*^9}, {
+  3.567954323041614*^9, 3.56795433220015*^9}, {3.567955234188291*^9, 
+  3.567955245087089*^9}, {3.5679632065534277`*^9, 3.567963241112629*^9}}],
+
+Cell[BoxData["0.247449204459306`"], "Output",
+ CellChangeTimes->{{3.56796323851656*^9, 3.567963241667575*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"\[CapitalSigma]", "[", "\[Sigma]_", "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "+", 
+       SuperscriptBox["\[Sigma]", "2"]}], ",", 
+      SuperscriptBox["\[Sigma]", "2"]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{
+      SuperscriptBox["\[Sigma]", "2"], ",", 
+      RowBox[{"1", "+", 
+       SuperscriptBox["\[Sigma]", "2"]}]}], "}"}]}], 
+   "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g", "[", 
+   RowBox[{"\[Mu]_", ",", "\[Sigma]_"}], "]"}], ":=", 
+  RowBox[{"CDF", "[", 
+   RowBox[{
+    RowBox[{"MultinormalDistribution", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", "0"}], "}"}], ",", 
+      RowBox[{"\[CapitalSigma]", "[", "\[Sigma]", "]"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\[Mu]", ",", "\[Mu]"}], "}"}]}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"g", "[", 
+  RowBox[{
+   RowBox[{"-", "0.1"}], ",", "0.5"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.567953866571926*^9, 3.5679539029879017`*^9}, {
+  3.567958004645914*^9, 3.567958006601885*^9}, {3.5679633060770893`*^9, 
+  3.567963351937001*^9}, {3.567963390077566*^9, 3.567963449551449*^9}, {
+  3.56796358027289*^9, 3.567963594392211*^9}}],
+
+Cell[BoxData["0.24744920445316834`"], "Output",
+ CellChangeTimes->{
+  3.5679539033897247`*^9, 3.567954504093102*^9, 3.56795679143722*^9, 
+   3.567958007061105*^9, 3.567963352939657*^9, {3.567963412061984*^9, 
+   3.567963471522023*^9}, 3.567963594941828*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"\[CapitalSigma]", "[", "0.5", "]"}], "//", "MatrixForm"}]], "Input",\
+
+ CellChangeTimes->{{3.5679634378369017`*^9, 3.56796343983668*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {"1.25`", "0.25`"},
+     {"0.25`", "1.25`"}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{{3.5679634406958313`*^9, 3.5679634475656137`*^9}, 
+   3.56796347842002*^9, 3.56796359854567*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1527, 1099},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+PrivateNotebookOptions->{"VersionedStylesheet"->{"Default.nb"[8.] -> False}},
+FrontEndVersion->"10.0 for Linux x86 (64-bit) (June 27, 2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 165, 2, 112, "Title"],
+Cell[747, 26, 776, 19, 75, "Subtitle"],
+Cell[CellGroupData[{
+Cell[1548, 49, 1069, 26, 58, "Input"],
+Cell[2620, 77, 88, 1, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2745, 83, 549, 16, 78, "Input"],
+Cell[3297, 101, 87, 1, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3421, 107, 799, 20, 75, "Subtitle"],
+Cell[CellGroupData[{
+Cell[4245, 131, 904, 24, 61, "Input"],
+Cell[5152, 157, 110, 1, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5299, 163, 1229, 34, 86, "Input"],
+Cell[6531, 199, 257, 4, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6825, 208, 172, 4, 33, "Input"],
+Cell[7000, 214, 717, 19, 46, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
