@@ -32,9 +32,48 @@ The process can be summarized or plotted with
 
 	plot(gp, 1:100/20)
 
-### Link functions and other likelihood models
+### Likelihood models and link functions
 
-    TODO
+#### Gamma likelihood model
+
+The following example creates a Gaussian process with gamma likelihood. Since the domain of the gamma distribution is the positive reals, we need a link function, such as the *logistic* function, to transform the process.
+
+	gp <- new.gp(1.0, kernel.exponential(1.0, 5.0),
+		     likelihood=new.likelihood("gamma", 1.0),
+		     link=new.link("logistic"))
+
+The shape of the gamma likelihood is set to *1.0*, whereas the mean is determined by the Gaussian process. Given the observations
+
+	n  <- 1000
+	xp <- 10*runif(n)
+	yp <- rgamma(n, 1, 2)
+
+we obtain the posterior distribution with
+
+	# add some tiny noise to the diagonal for numerical stability
+	gp <- posterior(gp, xp, yp, ep=0.01, verbose=TRUE)
+	summarize(gp, 0:10/5)
+
+	plot(gp, 1:100/10)
+
+#### Binomial likelihood
+
+The *probit* link function can be used for binomial observations. In this case there is no specific likelihood model needed.
+
+	gp <- new.gp(0.5, kernel.exponential(1, 0.25),
+		     likelihood=NULL,
+		     link=new.link("probit"))
+
+The observations are given by
+
+	xp <- c(1,2,3,4)
+	yp <- matrix(0, 4, 2)
+	yp[1,] <- c(2, 14)
+	yp[2,] <- c(4, 12)
+	yp[3,] <- c(7, 10)
+	yp[4,] <- c(15, 8)
+
+where *xp* is the locations of the observations and *yp* contains the count statistics (i.e. number of heads and tails).
 
 ### Heteroscedastic Gaussian process
 
