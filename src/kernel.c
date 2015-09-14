@@ -34,7 +34,7 @@ SEXP exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
         double *ry   = REAL(y);
         double *rl   = REAL(l);
         double *rvar = REAL(var);
-        double *rans, norm;
+        double *rans, r;
         SEXP ans, dim;
 
         /* check input */
@@ -63,12 +63,12 @@ SEXP exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
         rans = REAL(ans);
         for(i = 0; i < nx; i++) {
                 for(j = 0; j < ny; j++) {
-                        norm = 0.0;
+                        r = 0.0;
                         for (k = 0; k < mx; k++) {
-                                norm += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
+                                r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
                         }
                         rans[i + nx*j] =
-                                (*rvar)*exp(-1.0/(2.0*(*rl)*(*rl))*norm);
+                                (*rvar)*exp(-1.0/(2.0*(*rl)*(*rl))*r);
                 }
         }
         UNPROTECT(1);
@@ -87,7 +87,7 @@ SEXP exponential_kernel_gradient(SEXP x, SEXP y, SEXP l, SEXP var, SEXP li)
         double *rl   = REAL(l);
         double *rvar = REAL(var);
         int    *ri   = INTEGER(li);
-        double *rans, norm;
+        double *rans, r;
         SEXP ans, dim;
 
         /* check input */
@@ -117,31 +117,80 @@ SEXP exponential_kernel_gradient(SEXP x, SEXP y, SEXP l, SEXP var, SEXP li)
         if (*ri == 1) {
                 for(i = 0; i < nx; i++) {
                         for(j = 0; j < ny; j++) {
-                                norm = 0.0;
+                                r = 0.0;
                                 for (k = 0; k < mx; k++) {
-                                        norm += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
+                                        r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
                                 }
                                 rans[i + nx*j] =
-                                        (*rvar)*exp(-1.0/(2.0*(*rl)*(*rl))*norm);
+                                        (*rvar)*exp(-1.0/(2.0*(*rl)*(*rl))*r);
                                 rans[i + nx*j] =
-                                        rans[i + nx*j]*norm/((*rl)*(*rl)*(*rl));
+                                        rans[i + nx*j]*r/((*rl)*(*rl)*(*rl));
                         }
                 }
         }
         else if (*ri == 2) {
                 for(i = 0; i < nx; i++) {
                         for(j = 0; j < ny; j++) {
-                                norm = 0.0;
+                                r = 0.0;
                                 for (k = 0; k < mx; k++) {
-                                        norm += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
+                                        r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
                                 }
                                 rans[i + nx*j] =
-                                        2*sqrt(*rvar)*exp(-1.0/(2.0*(*rl)*(*rl))*norm);
+                                        2*sqrt(*rvar)*exp(-1.0/(2.0*(*rl)*(*rl))*r);
                         }
                 }
         }
         else {
                 error("invalid argument i");
+        }
+        UNPROTECT(1);
+
+        return(ans);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
+{
+        R_len_t i, j, k;
+        R_len_t nx;
+        R_len_t mx;
+        R_len_t ny;
+        double *rx   = REAL(x);
+        double *ry   = REAL(y);
+        double *rl   = REAL(l);
+        double *rans, r;
+        SEXP ans, dim;
+
+        /* check input */
+        dim = getAttrib(x, R_DimSymbol);
+        if (length(dim) != 2) {
+                error("x has invalid dimension");
+        }
+        nx = INTEGER(dim)[0];
+        mx = INTEGER(dim)[1];
+
+        dim = getAttrib(y, R_DimSymbol);
+        if (length(dim) != 2 && INTEGER(dim)[1] != 2) {
+                error("y has invalid dimension");
+        }
+        ny = INTEGER(dim)[0];
+
+        if (length(l) != 1) {
+                error("l is not a scalar");
+        }
+
+        /* compute kernel */
+        PROTECT(ans = allocMatrix(REALSXP, nx, ny));
+        rans = REAL(ans);
+        for(i = 0; i < nx; i++) {
+                for(j = 0; j < ny; j++) {
+                        r = 0.0;
+                        for (k = 0; k < mx; k++) {
+                                r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
+                        }
+                        rans[i + nx*j] = exp(-sqrt(r)/(*rl));
+                }
         }
         UNPROTECT(1);
 

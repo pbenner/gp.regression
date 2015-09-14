@@ -57,3 +57,24 @@ kernel.exponential <- function(l, var)
     }
     return (f)
 }
+
+
+#' Create an Ornstein-Uhlenbeck kernel
+#' 
+#' @param l length scale
+#' @export
+
+kernel.ornstein.uhlenbeck <- function(l)
+{
+    storage.mode(l)   <- "double"
+    f <- function(x, y=NULL, gradient=FALSE, i = 0) {
+        if (gradient) {
+            storage.mode(i) <- "integer"
+            call.kernel("ornstein_uhlenbeck_gradient", x, y, l,  i)
+        }
+        else {
+            call.kernel("ornstein_uhlenbeck_kernel", x, y, l)
+        }
+    }
+    return (f)
+}
