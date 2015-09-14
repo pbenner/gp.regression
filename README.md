@@ -56,6 +56,8 @@ we obtain the posterior distribution with
 
 	plot(gp, 1:100/10)
 
+![Gamma likelihood](demo/gamma.png)
+
 #### Binomial likelihood
 
 The *probit* link function can be used for binomial observations. In this case there is no specific likelihood model needed.
