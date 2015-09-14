@@ -18,7 +18,7 @@ library("ggplot2")
 library("gridExtra")
 library("scales")
 
-plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.3, scatter=TRUE, ...)
+plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.3, plot.scatter=TRUE, ...)
 {
     result <- summarize(gp, x)
 
@@ -35,14 +35,14 @@ plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.3, scat
                              aes(ymin=ymin, ymax=ymax),
                              alpha=alpha)
     }
-    if (scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
+    if (plot.scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
         p <- p + geom_point(data=data.frame(x=gp$xp, y=gp$yp),
                             aes(x = x, y = y))
     }
     return (p)
 }
 
-plot.gp.2d <- function(gp, x, plot.variance=TRUE, scatter=FALSE,
+plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
                        low=muted("green"), mid="white", high=muted("red"),
                        midpoint=NULL, ...)
 {
@@ -64,7 +64,7 @@ plot.gp.2d <- function(gp, x, plot.variance=TRUE, scatter=FALSE,
         scale_fill_gradient2(limits=limits, low=low, mid=mid, high=high, midpoint=midpoint) +
         ggtitle("Expected value")
 
-    if (scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
+    if (plot.scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
         p1 <- p1 + geom_point(data=data.frame(x=gp$xp[,1], y=gp$xp[,2], z = gp$yp),
                               aes(x = x, y = y, colour = z))
     }

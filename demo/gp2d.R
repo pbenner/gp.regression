@@ -7,4 +7,4 @@ gp <- new.gp(0.5, kernel.exponential(0.5, 1), dim=2)
 gp <- posterior(gp, xp, yp, 1)
 
 x  <- as.matrix(expand.grid(x = 1:100/100, y = 1:100/100))
-plot(gp, x, scatter=TRUE, plot.variance=FALSE)
+plot(gp, x, plot.scatter=TRUE, plot.variance=FALSE)

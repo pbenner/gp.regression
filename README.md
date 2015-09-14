@@ -42,7 +42,7 @@ Data with higher-dimensional covariantes can be analysed in the same way, e.g. f
 	gp <- posterior(gp, xp, yp, 1)
 
 	x  <- as.matrix(expand.grid(x = 1:100/100, y = 1:100/100))
-	plot(gp, x, scatter=TRUE, plot.variance=FALSE)
+	plot(gp, x, plot.scatter=TRUE, plot.variance=FALSE)
 
 ![Two-dimensional Gaussian process](demo/gp2d.png)
 
