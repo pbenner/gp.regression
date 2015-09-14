@@ -1,14 +1,10 @@
-x  <- as.matrix(expand.grid(x = 1:20/4, y = 1:20/4))
-gp <- new.gp(x, 0.5, kernel.exponential(2, 1))
 
-xp <- matrix(0,2, nrow=2)
-xp[1,] <- c(2,2)
-xp[1,] <- c(4,4)
+np <- 400
+xp <- cbind(x1 = runif(np), x2 = runif(np))
+yp <- sin(pi*xp[,1]) + cos(2*pi*xp[,2]) + rnorm(np, 0, 1)
 
-yp <- c(0.2, 0.8)
-# measurement noise
-ep <- c(0.001, 0.001)
+gp <- new.gp(0.5, kernel.exponential(0.5, 1), dim=2)
+gp <- posterior(gp, xp, yp, 1)
 
-gp <- posterior(gp, xp, yp, ep)
-
-plot(gp)
+x  <- as.matrix(expand.grid(x = 1:100/100, y = 1:100/100))
+plot(gp, x, scatter=TRUE, plot.variance=FALSE)

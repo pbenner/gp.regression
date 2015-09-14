@@ -32,6 +32,20 @@ The process can be summarized or plotted with
 
 	plot(gp, 1:100/20)
 
+Data with higher-dimensional covariantes can be analysed in the same way, e.g. for two dimensions
+
+	np <- 400
+	xp <- cbind(x1 = runif(np), x2 = runif(np))
+	yp <- sin(pi*xp[,1]) + cos(2*pi*xp[,2]) + rnorm(np, 0, 1)
+
+	gp <- new.gp(0.5, kernel.exponential(0.5, 1), dim=2)
+	gp <- posterior(gp, xp, yp, 1)
+
+	x  <- as.matrix(expand.grid(x = 1:100/100, y = 1:100/100))
+	plot(gp, x, scatter=TRUE, plot.variance=FALSE)
+
+![Two-dimensional Gaussian process](demo/gp2d.png)
+
 ### Likelihood models and link functions
 
 #### Gamma likelihood model
