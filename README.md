@@ -17,7 +17,13 @@ This creates a Gaussian process with prior mean *36.8* and a squared exponential
 	gp <- new.gp(36.8, kernel.exponential(200, 0.1),
 	      	     likelihood=new.likelihood("normal", 0.1))
 
-the variance of the likelihood model is set to *0.1*. Assuming we have the following observations
+the variance of the likelihood model is set to *0.1*. Samples from the prior Gaussian process can be drawn with
+
+	draw.sample(gp, 1:300*10, ep=0.000001)
+
+![Gaussian process samples](demo/gp1d.samples.png)
+
+Assuming we have the following observations
 
 	library(MASS)
 

@@ -228,6 +228,40 @@ posterior.gp <- function(model, xp, yp, ep=NULL, ...)
     gp
 }
 
+#' Draw samples from a probability distribution
+#' 
+#' @param model probabilistic model
+#' @param ... arguments to be passed to methods
+#' @export
+
+draw.sample <- function(model, ...)
+{
+    UseMethod("draw.sample")
+}
+
+#' Draw samples from a Gaussian process
+#' 
+#' @param model Gaussian process
+#' @param x locations where to evaluate the Gaussian process
+#' @param ep uncertainty of measurements (optional)
+#' @param ... arguments to be passed to the algorithms
+#' @export
+
+draw.sample <- function(model, x, ep=NULL, ...)
+{
+    gp <- model
+
+    x <- as.matrix(x)
+    y <- rep(0.0, nrow(x))
+
+    for (i in 1:length(x)) {
+        list[mean, variance] <- summarize(gp, x[i,], ...)
+        y[i] <- rnorm(1, mean = mean, sd = sqrt(variance))
+        gp <- posterior(gp, x[i,], y[i], ep=ep, ...)
+    }
+    y
+}
+
 #' Compute marginal likelihood of a model
 #' 
 #' @param model probabilistic model
