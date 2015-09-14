@@ -139,8 +139,8 @@ if (FALSE) {
                     verbose=T)
     # --------------------------------------------------------------------------
     gp <- new.gp.heteroscedastic(
-        new.gp(1.0, kernel.exponential(5, 100)),
-        new.gp(1.0, kernel.exponential(10, 50),
+        new.gp( 0.0, kernel.exponential(4, 100)),
+        new.gp(10.0, kernel.exponential(4,  10),
                likelihood=new.likelihood("gamma", 1),
                link=new.link("logistic")),
         transform     = sqrt,

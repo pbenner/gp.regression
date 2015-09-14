@@ -80,9 +80,22 @@ where *xp* is the locations of the observations and *yp* contains the count stat
 Heteroscedasticity can be modeled with a second Gaussian process for the variance of the likelihood model. An example is given by
 
 	gp <- new.gp.heteroscedastic(
-		new.gp(1.0, kernel.exponential(5, 100)),
-		new.gp(1.0, kernel.exponential(10, 50),
+		new.gp( 0.0, kernel.exponential(4, 100)),
+		new.gp(10.0, kernel.exponential(4,  10),
 		       likelihood=new.likelihood("gamma", 1),
-		       link=new.link("logistic")))
+		       link=new.link("logistic")),
+		transform     = sqrt,
+		transform.inv = function(x) x^2)
 
-where the second Gaussian process uses a gamma likelihood model in combination with a logistic link function.
+where the second Gaussian process uses a gamma likelihood model in combination with a logistic link function. The empirical variances are transformed by taking the square root. Testing the model on the *mcycle* data set
+
+	data("mcycle", package = "MASS")
+
+	gp <- posterior(gp, mcycle$times, mcycle$accel, 0.00001,
+	                step = 0.1,
+	                epsilon = 0.000001,
+	                verbose=T)
+
+gives the following result
+
+![Heteroscedastic GP](demo/mcycle.png)
