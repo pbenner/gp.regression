@@ -17,6 +17,7 @@
  */
 
 #include <R.h>
+#include <Rmath.h>
 #include <Rinternals.h>
 
 #include <math.h>
@@ -190,6 +191,60 @@ SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
                                 r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
                         }
                         rans[i + nx*j] = exp(-sqrt(r)/(*rl));
+                }
+        }
+        UNPROTECT(1);
+
+        return(ans);
+}
+
+// Matern kernel
+////////////////////////////////////////////////////////////////////////////////
+
+SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu)
+{
+        R_len_t i, j, k;
+        R_len_t nx;
+        R_len_t mx;
+        R_len_t ny;
+        double *rx   = REAL(x);
+        double *ry   = REAL(y);
+        double *rl   = REAL(l);
+        double *rnu  = REAL(nu);
+        double *rans, r;
+        SEXP ans, dim;
+
+        /* check input */
+        dim = getAttrib(x, R_DimSymbol);
+        if (length(dim) != 2) {
+                error("x has invalid dimension");
+        }
+        nx = INTEGER(dim)[0];
+        mx = INTEGER(dim)[1];
+
+        dim = getAttrib(y, R_DimSymbol);
+        if (length(dim) != 2 && INTEGER(dim)[1] != 2) {
+                error("y has invalid dimension");
+        }
+        ny = INTEGER(dim)[0];
+
+        if (length(l) != 1) {
+                error("l is not a scalar");
+        }
+        if (length(nu) != 1) {
+                error("nu is not a scalar");
+        }
+
+        /* compute kernel */
+        PROTECT(ans = allocMatrix(REALSXP, nx, ny));
+        rans = REAL(ans);
+        for(i = 0; i < nx; i++) {
+                for(j = 0; j < ny; j++) {
+                        r = 0.0;
+                        for (k = 0; k < mx; k++) {
+                                r += sqrt((rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]));
+                        }
+                        rans[i + nx*j] = pow(2.0, 1.0-(*rnu))/gammafn(*rnu)*pow(sqrt(2.0*(*rnu))/(*rl)*r, (*rnu))*bessel_i(sqrt(2.0*(*rnu))/(*rl)*r, (*rnu), 1);
                 }
         }
         UNPROTECT(1);

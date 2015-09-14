@@ -36,7 +36,7 @@ call.kernel <- function(name, x, y, ...)
   }
 }
 
-#' Generate a squared exponential kernel
+#' Create a squared exponential kernel
 #' 
 #' @param l length scale
 #' @param var noise variance
@@ -58,7 +58,6 @@ kernel.exponential <- function(l, var)
     return (f)
 }
 
-
 #' Create an Ornstein-Uhlenbeck kernel
 #' 
 #' @param l length scale
@@ -74,6 +73,28 @@ kernel.ornstein.uhlenbeck <- function(l)
         }
         else {
             call.kernel("ornstein_uhlenbeck_kernel", x, y, l)
+        }
+    }
+    return (f)
+}
+
+#' Create a Matern kernel
+#' 
+#' @param l length scale
+#' @param var noise variance
+#' @export
+
+kernel.matern <- function(l, nu)
+{
+    storage.mode(l)  <- "double"
+    storage.mode(nu) <- "double"
+    f <- function(x, y=NULL, gradient=FALSE, i = 0) {
+        if (gradient) {
+            storage.mode(i) <- "integer"
+            call.kernel("matern_gradient", x, y, l, nu, i)
+        }
+        else {
+            call.kernel("matern_kernel", x, y, l, nu)
         }
     }
     return (f)
