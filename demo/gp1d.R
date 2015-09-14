@@ -1,12 +1,12 @@
-gp <- new.gp(0.5, kernel.exponential(1, 1))
+library(MASS)
 
-xp <- c(1, 2, 3)
-yp <- c(0.7, 0.7, 0.7)
-# measurement noise
-ep <- c(0.01, 0.01, 0.01)
+xp <- beav1$time
+yp <- beav1$temp
+ep <- 0.1
 
-marginal.likelihood(gp, xp, yp, ep)
-
+gp <- new.gp(36.8, kernel.exponential(200, 0.1))
 gp <- posterior(gp, xp, yp, ep)
 
-plot(gp, 1:100/20)
+plot(gp, 1:300*10)
+
+marginal.likelihood(gp, xp, yp, ep)

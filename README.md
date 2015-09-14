@@ -10,27 +10,33 @@ The package requires *roxygen2*, *ggplot2*, *Matrix* and a couple of other libra
 
 A first example:
 
-	gp <- new.gp(0.5, kernel.exponential(1, 1))
+	gp <- new.gp(36.8, kernel.exponential(200, 0.1))
 
-This creates a Gaussian process with prior mean *0.5* and a squared exponential kernel. The likelihood model is a Gaussian with variance *1*. With
+This creates a Gaussian process with prior mean *36.8* and a squared exponential kernel. The likelihood model is a Gaussian with variance *1*. With
 
-	gp <- new.gp(0.5, kernel.exponential(1, 1),
-	      	     likelihood=new.likelihood("normal", 0.01))
+	gp <- new.gp(36.8, kernel.exponential(200, 0.1),
+	      	     likelihood=new.likelihood("normal", 0.1))
 
-the variance of the likelihood model is set to *0.01*. Assuming we have the following observations
+the variance of the likelihood model is set to *0.1*. Assuming we have the following observations
 
-	xp <- c(1, 2, 3)
-	yp <- c(0.7, 0.7, 0.7)
+	library(MASS)
+
+	xp <- beav1$time
+	yp <- beav1$temp
 
 we may compute the posterior Gaussian processs with
 
 	gp <- posterior(gp, xp, yp)
 
-The process can be summarized or plotted with
+The posterior distribution can be summarized and visualized at locations *x* with
 
-	summarize(gp, 1:100/20)
+	x <- 1:300*10
 
-	plot(gp, 1:100/20)
+	summarize(gp, x)
+
+	plot(gp, x)
+
+![One-dimensional Gaussian process](demo/gp1d.png)
 
 Data with higher-dimensional covariantes can be analysed in the same way, e.g. for two dimensions
 
