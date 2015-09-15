@@ -22,10 +22,10 @@
 
 #include <math.h>
 
-// naive implementation of the kernel function
+// squared exponential kernel
 ////////////////////////////////////////////////////////////////////////////////
 
-SEXP exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
+SEXP squared_exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
 {
         R_len_t i, j, k;
         R_len_t nx;
@@ -77,7 +77,7 @@ SEXP exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
         return(ans);
 }
 
-SEXP exponential_kernel_gradient(SEXP x, SEXP y, SEXP l, SEXP var, SEXP li)
+SEXP squared_exponential_gradient(SEXP x, SEXP y, SEXP l, SEXP var, SEXP li)
 {
         R_len_t i, j, k;
         R_len_t nx;
@@ -143,6 +143,65 @@ SEXP exponential_kernel_gradient(SEXP x, SEXP y, SEXP l, SEXP var, SEXP li)
         }
         else {
                 error("invalid argument i");
+        }
+        UNPROTECT(1);
+
+        return(ans);
+}
+
+// gamma exponential kernel
+////////////////////////////////////////////////////////////////////////////////
+
+SEXP gamma_exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP gamma)
+{
+        R_len_t i, j, k;
+        R_len_t nx;
+        R_len_t mx;
+        R_len_t ny;
+        double *rx     = REAL(x);
+        double *ry     = REAL(y);
+        double *rl     = REAL(l);
+        double *rvar   = REAL(var);
+        double *rgamma = REAL(gamma);
+        double *rans, r;
+        SEXP ans, dim;
+
+        /* check input */
+        dim = getAttrib(x, R_DimSymbol);
+        if (length(dim) != 2) {
+                error("x has invalid dimension");
+        }
+        nx = INTEGER(dim)[0];
+        mx = INTEGER(dim)[1];
+
+        dim = getAttrib(y, R_DimSymbol);
+        if (length(dim) != 2 && INTEGER(dim)[1] != 2) {
+                error("y has invalid dimension");
+        }
+        ny = INTEGER(dim)[0];
+
+        if (length(l) != 1) {
+                error("l is not a scalar");
+        }
+        if (length(var) != 1) {
+                error("var is not a scalar");
+        }
+        if (length(gamma) != 1) {
+                error("gamma is not a scalar");
+        }
+
+        /* compute kernel */
+        PROTECT(ans = allocMatrix(REALSXP, nx, ny));
+        rans = REAL(ans);
+        for(i = 0; i < nx; i++) {
+                for(j = 0; j < ny; j++) {
+                        r = 0.0;
+                        for (k = 0; k < mx; k++) {
+                                r += sqrt((rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]));
+                        }
+                        rans[i + nx*j] =
+                                (*rvar)*exp(-pow(r/(*rl), *rgamma));
+                }
         }
         UNPROTECT(1);
 

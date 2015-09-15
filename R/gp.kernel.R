@@ -49,10 +49,34 @@ kernel.squared.exponential <- function(l, var)
     f <- function(x, y=NULL, gradient=FALSE, i = 0) {
         if (gradient) {
             storage.mode(i) <- "integer"
-            call.kernel("exponential_kernel_gradient", x, y, l, var, i)
+            call.kernel("squared_exponential_gradient", x, y, l, var, i)
         }
         else {
-            call.kernel("exponential_kernel", x, y, l, var)
+            call.kernel("squared_exponential_kernel", x, y, l, var)
+        }
+    }
+    return (f)
+}
+
+#' Create a gamma exponential kernel
+#' 
+#' @param l length scale
+#' @param var noise variance
+#' @param gamma exponent
+#' @export
+
+kernel.gamma.exponential <- function(l, var, gamma)
+{
+    storage.mode(l)     <- "double"
+    storage.mode(var)   <- "double"
+    storage.mode(gamma) <- "double"
+    f <- function(x, y=NULL, gradient=FALSE, i = 0) {
+        if (gradient) {
+            storage.mode(i) <- "integer"
+            call.kernel("gamma_exponential_gradient", x, y, l, var, gamma, i)
+        }
+        else {
+            call.kernel("gamma_exponential_kernel", x, y, l, var, gamma)
         }
     }
     return (f)
