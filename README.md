@@ -10,11 +10,11 @@ The package requires *roxygen2*, *ggplot2*, *Matrix* and a couple of other libra
 
 A first example:
 
-	gp <- new.gp(36.8, kernel.exponential(200, 0.1))
+	gp <- new.gp(36.8, kernel.squared.exponential(200, 0.1))
 
 This creates a Gaussian process with prior mean *36.8* and a squared exponential kernel. The likelihood model is a Gaussian with variance *1*. With
 
-	gp <- new.gp(36.8, kernel.exponential(200, 0.1),
+	gp <- new.gp(36.8, kernel.squared.exponential(200, 0.1),
 	      	     likelihood=new.likelihood("normal", 0.1))
 
 the variance of the likelihood model is set to *0.1*. Samples from the prior Gaussian process can be drawn with
@@ -50,7 +50,7 @@ Data with higher-dimensional covariantes can be analysed in the same way, e.g. f
 	xp <- cbind(x1 = runif(np), x2 = runif(np))
 	yp <- sin(pi*xp[,1]) + cos(2*pi*xp[,2]) + rnorm(np, 0, 1)
 
-	gp <- new.gp(0.5, kernel.exponential(0.5, 1), dim=2)
+	gp <- new.gp(0.5, kernel.squared.exponential(0.5, 1), dim=2)
 	gp <- posterior(gp, xp, yp, 1)
 
 	x  <- as.matrix(expand.grid(x = 1:100/100, y = 1:100/100))
@@ -62,7 +62,7 @@ Data with higher-dimensional covariantes can be analysed in the same way, e.g. f
 
 Name | Constructor |Parameters
 -----|-------------|----------
-Squared exponential | *kernel.exponential* | l, variance
+Squared exponential | *kernel.squared.exponential* | l, variance
 Ornstein-Uhlenbeck | *kernel.ornstein.uhlenbeck* | l
 Matern | *kernel.matern* | l, nu
 
@@ -74,7 +74,7 @@ Matern | *kernel.matern* | l, nu
 
 The following example creates a Gaussian process with gamma likelihood. Since the domain of the gamma distribution is the positive reals, we need a link function, such as the *logistic* function, to transform the process.
 
-	gp <- new.gp(1.0, kernel.exponential(1.0, 5.0),
+	gp <- new.gp(1.0, kernel.squared.exponential(1.0, 5.0),
 		     likelihood=new.likelihood("gamma", 1.0),
 		     link=new.link("logistic"))
 
@@ -98,7 +98,7 @@ we obtain the posterior distribution with
 
 The *probit* link function can be used for binomial observations. In this case there is no specific likelihood model needed.
 
-	gp <- new.gp(0.5, kernel.exponential(1, 0.25),
+	gp <- new.gp(0.5, kernel.squared.exponential(1, 0.25),
 		     likelihood=NULL,
 		     link=new.link("probit"))
 
@@ -118,8 +118,8 @@ where *xp* is the locations of the observations and *yp* contains the count stat
 Heteroscedasticity can be modeled with a second Gaussian process for the variance of the likelihood model. An example is given by
 
 	gp <- new.gp.heteroscedastic(
-		new.gp( 0.0, kernel.exponential(4, 100)),
-		new.gp(10.0, kernel.exponential(4,  10),
+		new.gp( 0.0, kernel.squared.exponential(4, 100)),
+		new.gp(10.0, kernel.squared.exponential(4,  10),
 		       likelihood=new.likelihood("gamma", 1),
 		       link=new.link("logistic")),
 		transform     = sqrt,

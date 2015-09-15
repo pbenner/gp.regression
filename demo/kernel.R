@@ -1,5 +1,5 @@
 
-gp1 <- new.gp(0.0, kernel.exponential(5, 1))
+gp1 <- new.gp(0.0, kernel.squared.exponential(5, 1))
 gp2 <- new.gp(0.0, kernel.ornstein.uhlenbeck(1))
 gp3 <- new.gp(0.0, kernel.matern(10, 3/10))
 

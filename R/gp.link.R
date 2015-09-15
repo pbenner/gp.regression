@@ -118,7 +118,7 @@ if (FALSE) {
     yp[3,] <- c(7, 10)
     yp[4,] <- c(15, 8)
 
-    gp <- new.gp(0.5, kernel.exponential(1, 0.25),
+    gp <- new.gp(0.5, kernel.squared.exponential(1, 0.25),
                  likelihood=NULL,
                  link=new.link("probit"))
     gp <- posterior(gp, xp, yp)
@@ -132,7 +132,7 @@ if (FALSE) {
     xp <- 10*runif(n)
     yp <- rgamma(n, 1, 2)
 
-    gp <- new.gp(1.0, kernel.exponential(1.0, 5.0),
+    gp <- new.gp(1.0, kernel.squared.exponential(1.0, 5.0),
                  likelihood=new.likelihood("gamma", 1.0),
                  link=new.link("logistic"))
     # add some tiny noise to the diagonal for numerical stability

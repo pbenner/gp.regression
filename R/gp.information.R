@@ -128,8 +128,8 @@ if (FALSE) {
     yp <- c(0.7, 0.7, 0.7)
     ep <- c(0.01, 0.01, 0.01)
 
-    gp0 <- new.gp(0.5, kernel.exponential(1, 1))
-    gp1 <- new.gp(0.5, kernel.exponential(1, 2))
+    gp0 <- new.gp(0.5, kernel.squared.exponential(1, 1))
+    gp1 <- new.gp(0.5, kernel.squared.exponential(1, 2))
     gp2 <- posterior(gp1, xp, yp, ep)
 
     kl.divergence(gp0, gp0, xp)

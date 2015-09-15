@@ -42,7 +42,7 @@ call.kernel <- function(name, x, y, ...)
 #' @param var noise variance
 #' @export
 
-kernel.exponential <- function(l, var)
+kernel.squared.exponential <- function(l, var)
 {
     storage.mode(l)   <- "double"
     storage.mode(var) <- "double"

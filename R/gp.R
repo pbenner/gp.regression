@@ -435,24 +435,24 @@ if (FALSE) {
     yp <- c(0.7, 0.7, 0.7)
     ep <- c(0.01, 0.01, 0.01)
 
-    gp1 <- new.gp(0.5, kernel.exponential(1, 1),
+    gp1 <- new.gp(0.5, kernel.squared.exponential(1, 1),
                   likelihood = new.likelihood("normal", 0.01))
     gp1 <- posterior(gp1, xp, yp)
 
     plot(gp1, 0:40/10)
 
     # update in two steps
-    gp2 <- new.gp(0.5, kernel.exponential(1, 1))
+    gp2 <- new.gp(0.5, kernel.squared.exponential(1, 1))
     gp2 <- posterior(gp2, xp[  1], yp[  1], ep[  1])
     gp2 <- posterior(gp2, xp[2:3], yp[2:3], ep[2:3])
 
     # evaluate marginal likelihood
-    gp3 <- new.gp(0.5, kernel.exponential(1, 1))
+    gp3 <- new.gp(0.5, kernel.squared.exponential(1, 1))
     marginal.likelihood(gp3, xp, yp, ep)
     # [1] -2.292447
 
     # evaluate conditional marginal likelihood
-    gp4 <- new.gp(0.5, kernel.exponential(1, 1))
+    gp4 <- new.gp(0.5, kernel.squared.exponential(1, 1))
     gp4 <- posterior(gp4, xp[1], yp[1], ep[1])
     marginal.likelihood(gp3, xp[2:3], yp[2:3], ep[2:3])
     # [1] -1.648935

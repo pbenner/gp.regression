@@ -1,5 +1,5 @@
 
-gp <- new.gp(1.0, kernel.exponential(1.0, 5.0),
+gp <- new.gp(1.0, kernel.squared.exponential(1.0, 5.0),
              likelihood=new.likelihood("gamma", 1.0),
              link=new.link("logistic"))
 
