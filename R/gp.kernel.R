@@ -87,16 +87,17 @@ kernel.gamma.exponential <- function(l, var, gamma)
 #' @param l length scale
 #' @export
 
-kernel.ornstein.uhlenbeck <- function(l)
+kernel.ornstein.uhlenbeck <- function(l, var)
 {
     storage.mode(l)   <- "double"
+    storage.mode(var) <- "double"
     f <- function(x, y=NULL, gradient=FALSE, i = 0) {
         if (gradient) {
             storage.mode(i) <- "integer"
-            call.kernel("ornstein_uhlenbeck_gradient", x, y, l,  i)
+            call.kernel("ornstein_uhlenbeck_gradient", x, y, l, var, i)
         }
         else {
-            call.kernel("ornstein_uhlenbeck_kernel", x, y, l)
+            call.kernel("ornstein_uhlenbeck_kernel", x, y, l, var)
         }
     }
     return (f)
@@ -108,17 +109,18 @@ kernel.ornstein.uhlenbeck <- function(l)
 #' @param var noise variance
 #' @export
 
-kernel.matern <- function(l, nu)
+kernel.matern <- function(l, var, nu)
 {
-    storage.mode(l)  <- "double"
-    storage.mode(nu) <- "double"
+    storage.mode(l)   <- "double"
+    storage.mode(var) <- "double"
+    storage.mode(nu)  <- "double"
     f <- function(x, y=NULL, gradient=FALSE, i = 0) {
         if (gradient) {
             storage.mode(i) <- "integer"
-            call.kernel("matern_gradient", x, y, l, nu, i)
+            call.kernel("matern_gradient", x, y, l, var, nu, i)
         }
         else {
-            call.kernel("matern_kernel", x, y, l, nu)
+            call.kernel("matern_kernel", x, y, l, var, nu)
         }
     }
     return (f)

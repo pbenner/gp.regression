@@ -210,7 +210,7 @@ SEXP gamma_exponential_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP gamma)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
+SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
 {
         R_len_t i, j, k;
         R_len_t nx;
@@ -219,6 +219,7 @@ SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
         double *rx   = REAL(x);
         double *ry   = REAL(y);
         double *rl   = REAL(l);
+        double *rvar = REAL(var);
         double *rans, r;
         SEXP ans, dim;
 
@@ -239,6 +240,9 @@ SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
         if (length(l) != 1) {
                 error("l is not a scalar");
         }
+        if (length(var) != 1) {
+                error("var is not a scalar");
+        }
 
         /* compute kernel */
         PROTECT(ans = allocMatrix(REALSXP, nx, ny));
@@ -249,7 +253,7 @@ SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
                         for (k = 0; k < mx; k++) {
                                 r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
                         }
-                        rans[i + nx*j] = exp(-sqrt(r)/(*rl));
+                        rans[i + nx*j] = (*rvar)*exp(-sqrt(r)/(*rl));
                 }
         }
         UNPROTECT(1);
@@ -260,7 +264,7 @@ SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l)
 // Matern kernel
 ////////////////////////////////////////////////////////////////////////////////
 
-SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu)
+SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu, SEXP var)
 {
         R_len_t i, j, k;
         R_len_t nx;
@@ -269,6 +273,7 @@ SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu)
         double *rx   = REAL(x);
         double *ry   = REAL(y);
         double *rl   = REAL(l);
+        double *rvar = REAL(var);
         double *rnu  = REAL(nu);
         double *rans, r, t, c;
         SEXP ans, dim;
@@ -290,12 +295,15 @@ SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu)
         if (length(l) != 1) {
                 error("l is not a scalar");
         }
+        if (length(var) != 1) {
+                error("var is not a scalar");
+        }
         if (length(nu) != 1) {
                 error("nu is not a scalar");
         }
 
         /* required constant */
-        c = pow(2.0, 1.0-(*rnu))/gammafn(*rnu);
+        c = (*rvar)*pow(2.0, 1.0-(*rnu))/gammafn(*rnu);
         /* compute kernel */
         PROTECT(ans = allocMatrix(REALSXP, nx, ny));
         rans = REAL(ans);
@@ -306,7 +314,7 @@ SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu)
                                 r += sqrt((rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]));
                         }
                         if (sqrt(r) < 1.0e-8) {
-                                rans[i + nx*j] = 1.0;
+                                rans[i + nx*j] = *rvar;
                         }
                         else {
                                 t = sqrt(2.0*(*rnu))/(*rl)*r;

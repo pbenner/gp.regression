@@ -64,8 +64,8 @@ Name | Constructor |Parameters
 -----|-------------|----------
 Squared exponential | *kernel.squared.exponential* | l, variance
 Gamma exponential | *kernel.gamma.exponential* | l, variance, gamma
-Ornstein-Uhlenbeck | *kernel.ornstein.uhlenbeck* | l
-Matern | *kernel.matern* | l, nu
+Ornstein-Uhlenbeck | *kernel.ornstein.uhlenbeck* | l, variance
+Matern | *kernel.matern* | l, variance, nu
 
 ![Samples with different kernel functions](demo/kernel.png)
 

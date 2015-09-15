@@ -1,7 +1,7 @@
 
 gp1 <- new.gp(0.0, kernel.squared.exponential(5, 1))
-gp2 <- new.gp(0.0, kernel.ornstein.uhlenbeck(1))
-gp3 <- new.gp(0.0, kernel.matern(10, 3/10))
+gp2 <- new.gp(0.0, kernel.ornstein.uhlenbeck(1, 1))
+gp3 <- new.gp(0.0, kernel.matern(10, 1, 3/10))
 
 x <- seq(0, 100, length.out=1000)
 
