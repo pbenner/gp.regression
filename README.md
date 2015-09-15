@@ -58,6 +58,10 @@ Data with higher-dimensional covariantes can be analysed in the same way, e.g. f
 
 ![Two-dimensional Gaussian process](demo/gp2d.png)
 
+### Kernel functions
+
+![Samples with different kernel functions](demo/kernel.png)
+
 ### Likelihood models and link functions
 
 #### Gamma likelihood model
