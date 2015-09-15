@@ -60,6 +60,12 @@ Data with higher-dimensional covariantes can be analysed in the same way, e.g. f
 
 ### Kernel functions
 
+Name | Parameters
+-----|-----------
+Squared exponential | l, variance
+Ornstein-Uhlenbeck | l
+Matern | l, nu
+
 ![Samples with different kernel functions](demo/kernel.png)
 
 ### Likelihood models and link functions
