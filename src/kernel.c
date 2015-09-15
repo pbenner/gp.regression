@@ -264,7 +264,7 @@ SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l, SEXP var)
 // Matern kernel
 ////////////////////////////////////////////////////////////////////////////////
 
-SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP nu, SEXP var)
+SEXP matern_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP nu)
 {
         R_len_t i, j, k;
         R_len_t nx;
