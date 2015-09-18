@@ -6,6 +6,12 @@ To install the package simply type
 
 The package requires *roxygen2*, *ggplot2*, *Matrix* and a couple of other libraries.
 
+### OpenBLAS
+
+It is recommended to use this library with a threaded version of OpenBLAS. See
+
+	*https://cran.r-project.org/doc/manuals/r-devel/R-admin.html#BLAS*
+
 ## Introduction
 
 A first example:
