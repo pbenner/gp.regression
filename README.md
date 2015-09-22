@@ -72,7 +72,7 @@ Linear | *kernel.linear* | variance_0, variance, c (offset)
 Squared exponential | *kernel.squared.exponential* | l, variance
 Gamma exponential | *kernel.gamma.exponential* | l, variance, gamma
 Periodic | *kernel.periodic* | l, variance, p (periodicity)
-Locally periodic | *kernel.periodic* | l, variance, p (periodicity)
+Locally periodic | *kernel.locally.periodic* | l, variance, p (periodicity)
 Ornstein-Uhlenbeck | *kernel.ornstein.uhlenbeck* | l, variance
 Matern | *kernel.matern* | l, variance, nu
 
