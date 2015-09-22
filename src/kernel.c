@@ -323,6 +323,67 @@ SEXP periodic_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP p)
         return(ans);
 }
 
+// locally periodic kernel
+////////////////////////////////////////////////////////////////////////////////
+
+SEXP locally_periodic_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP p)
+{
+        R_len_t i, j, k;
+        R_len_t nx;
+        R_len_t mx;
+        R_len_t ny;
+        double *rx   = REAL(x);
+        double *ry   = REAL(y);
+        double *rl   = REAL(l);
+        double *rvar = REAL(var);
+        double *rp   = REAL(p);
+        double *rans, r, s;
+        SEXP ans, dim;
+
+        /* check input */
+        dim = getAttrib(x, R_DimSymbol);
+        if (length(dim) != 2) {
+                error("x has invalid dimension");
+        }
+        nx = INTEGER(dim)[0];
+        mx = INTEGER(dim)[1];
+
+        dim = getAttrib(y, R_DimSymbol);
+        if (length(dim) != 2 && INTEGER(dim)[1] != 2) {
+                error("y has invalid dimension");
+        }
+        ny = INTEGER(dim)[0];
+
+        if (length(l) != 1) {
+                error("l is not a scalar");
+        }
+        if (length(var) != 1) {
+                error("var is not a scalar");
+        }
+
+        /* compute kernel */
+        PROTECT(ans = allocMatrix(REALSXP, nx, ny));
+        rans = REAL(ans);
+        for(i = 0; i < nx; i++) {
+                for(j = 0; j < ny; j++) {
+                        r = 0.0;
+                        for (k = 0; k < mx; k++) {
+                                r += (rx[i + nx*k] - ry[j + ny*k])*(rx[i + nx*k] - ry[j + ny*k]);
+                        }
+                        s = sin(M_PI*sqrt(r)/(*rp));
+                        // variance
+                        rans[i + nx*j]  = *rvar;
+                        // periodic component
+                        rans[i + nx*j] *= exp(-2.0*s*s/((*rl)*(*rl)));
+                        // squared exponential component
+                        rans[i + nx*j] *= exp(-1.0/(2.0*(*rl)*(*rl))*r);
+                }
+        }
+        UNPROTECT(1);
+
+        return(ans);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 SEXP ornstein_uhlenbeck_kernel(SEXP x, SEXP y, SEXP l, SEXP var)

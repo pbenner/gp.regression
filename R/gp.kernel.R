@@ -130,6 +130,30 @@ kernel.periodic <- function(l, var, p)
     return (f)
 }
 
+#' Create a locally periodic kernel
+#' 
+#' @param l length scale
+#' @param var noise variance
+#' @param p periodicity
+#' @export
+
+kernel.locally.periodic <- function(l, var, p)
+{
+    storage.mode(l)   <- "double"
+    storage.mode(var) <- "double"
+    storage.mode(p)   <- "double"
+    f <- function(x, y=NULL, gradient=FALSE, i = 0) {
+        if (gradient) {
+            storage.mode(i) <- "integer"
+            call.kernel("locally_periodic_gradient", x, y, l, var, p, i)
+        }
+        else {
+            call.kernel("locally_periodic_kernel", x, y, l, var, p)
+        }
+    }
+    return (f)
+}
+
 #' Create an Ornstein-Uhlenbeck kernel
 #' 
 #' @param l length scale
