@@ -303,6 +303,9 @@ SEXP periodic_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP p)
         if (length(var) != 1) {
                 error("var is not a scalar");
         }
+        if (length(p) != 1) {
+                error("p is not a scalar");
+        }
 
         /* compute kernel */
         PROTECT(ans = allocMatrix(REALSXP, nx, ny));
@@ -359,6 +362,9 @@ SEXP locally_periodic_kernel(SEXP x, SEXP y, SEXP l, SEXP var, SEXP p)
         }
         if (length(var) != 1) {
                 error("var is not a scalar");
+        }
+        if (length(p) != 1) {
+                error("p is not a scalar");
         }
 
         /* compute kernel */
