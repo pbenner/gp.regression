@@ -22,6 +22,64 @@
 
 #include <math.h>
 
+// linear kernel
+////////////////////////////////////////////////////////////////////////////////
+
+SEXP linear_kernel(SEXP x, SEXP y, SEXP var_0, SEXP var, SEXP c)
+{
+        R_len_t i, j, k;
+        R_len_t nx;
+        R_len_t mx;
+        R_len_t ny;
+        double *rx     = REAL(x);
+        double *ry     = REAL(y);
+        double *rvar_0 = REAL(var_0);
+        double *rvar   = REAL(var);
+        double *rc     = REAL(c);
+        double *rans, r;
+        SEXP ans, dim;
+
+        /* check input */
+        dim = getAttrib(x, R_DimSymbol);
+        if (length(dim) != 2) {
+                error("x has invalid dimension");
+        }
+        nx = INTEGER(dim)[0];
+        mx = INTEGER(dim)[1];
+
+        dim = getAttrib(y, R_DimSymbol);
+        if (length(dim) != 2 && INTEGER(dim)[1] != 2) {
+                error("y has invalid dimension");
+        }
+        ny = INTEGER(dim)[0];
+
+        if (length(var_0) != 1) {
+                error("var_0 is not a scalar");
+        }
+        if (length(var) != 1) {
+                error("var is not a scalar");
+        }
+        if (length(c) != 1) {
+                error("c is not a scalar");
+        }
+
+        /* compute kernel */
+        PROTECT(ans = allocMatrix(REALSXP, nx, ny));
+        rans = REAL(ans);
+        for(i = 0; i < nx; i++) {
+                for(j = 0; j < ny; j++) {
+                        r = 0.0;
+                        for (k = 0; k < mx; k++) {
+                                r += (rx[i + nx*k] - *rc)*(ry[j + ny*k] - *rc);
+                        }
+                        rans[i + nx*j] = *rvar_0 + (*rvar)*r;
+                }
+        }
+        UNPROTECT(1);
+
+        return(ans);
+}
+
 // squared exponential kernel
 ////////////////////////////////////////////////////////////////////////////////
 

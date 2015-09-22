@@ -36,6 +36,30 @@ call.kernel <- function(name, x, y, ...)
   }
 }
 
+#' Create a linear kernel
+#' 
+#' @param var_0 base variance
+#' @param var noise variance
+#' @param c offset
+#' @export
+
+kernel.linear <- function(var_0, var, c = 0.0)
+{
+    storage.mode(var_0) <- "double"
+    storage.mode(var  ) <- "double"
+    storage.mode(c    ) <- "double"
+    f <- function(x, y=NULL, gradient=FALSE, i = 0) {
+        if (gradient) {
+            storage.mode(i) <- "integer"
+            call.kernel("linear_gradient", x, y, var_0, var, c, i)
+        }
+        else {
+            call.kernel("linear_kernel", x, y, var_0, var, c)
+        }
+    }
+    return (f)
+}
+
 #' Create a squared exponential kernel
 #' 
 #' @param l length scale

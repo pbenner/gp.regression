@@ -68,6 +68,7 @@ Data with higher-dimensional covariantes can be analysed in the same way, e.g. f
 
 Name | Constructor |Parameters
 -----|-------------|----------
+Linear | *kernel.linear* | variance_0, variance, c (offset)
 Squared exponential | *kernel.squared.exponential* | l, variance
 Gamma exponential | *kernel.gamma.exponential* | l, variance, gamma
 Ornstein-Uhlenbeck | *kernel.ornstein.uhlenbeck* | l, variance
