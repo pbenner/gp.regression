@@ -2,3 +2,4 @@ gp1d		Generate and plot a 1-dimensional Gaussian process
 gp2d		Generate and plot a 2-dimensional Gaussian process
 gamma           A Gaussian process with gamma likelihood and logistic link function
 mcycle          Analysis of the mcycle data set
+classification  Simple 2-dimensional classification example
