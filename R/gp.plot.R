@@ -20,7 +20,7 @@ library("scales")
 
 plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.3, plot.scatter=TRUE, ...)
 {
-    result <- summarize(gp, x)
+    result <- summarize(gp, x, ...)
 
     p <- ggplot(data.frame(x = x, mean = result$mean), aes(x=x)) +
         geom_line(aes(y=mean)) +
@@ -50,7 +50,7 @@ plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
     p1 <- NULL
     p2 <- NULL
     # compute expectation and variance
-    result <- summarize(gp, x)
+    result <- summarize(gp, x, ...)
     # maximum and minimum for plotting
     limits <- c(min(result$mean), max(result$mean))
     # midpoint for the color gradient
