@@ -70,6 +70,7 @@ new.gp <- function(mean, kernelf, dim=1, likelihood=new.likelihood("normal", 1.0
 #' 
 #' @param x Gaussian process
 #' @method dim gp
+#' @export
 
 dim.gp <- function(x) {
     x$dim
@@ -245,6 +246,7 @@ draw.sample <- function(model, ...)
 #' @param ep uncertainty of measurements (optional)
 #' @param ... arguments to be passed to the algorithms
 #' @method draw.sample gp
+#' @export
 
 draw.sample.gp <- function(model, x, ep=NULL, ...)
 {
@@ -280,6 +282,7 @@ marginal.likelihood <- function(model, ...)
 #' @param ep uncertainty of measurements (optional)
 #' @param ... unused
 #' @method marginal.likelihood gp
+#' @export
 
 marginal.likelihood.gp <- function(model, xp, yp, ep=NULL, ...)
 {
@@ -329,6 +332,7 @@ gradient.marginal.likelihood <- function(model, ...)
 #' @param ep uncertainty of measurements (optional)
 #' @param ... unused
 #' @method gradient.marginal.likelihood gp
+#' @export
 
 gradient.marginal.likelihood.gp <- function(model, n, xp, yp, ep=NULL, ...)
 {
@@ -374,6 +378,7 @@ maximize.marginal.likelihood <- function(model, ...)
 #' @param verbose print norm(gradient)^2 and parameter values at every step
 #' @param ... unused
 #' @method maximize.marginal.likelihood gp
+#' @export
 
 maximize.marginal.likelihood.gp <- function(model, get.kernel, init, xp, yp, ep=NULL,
                                             eta=0.01, epsilon=0.01, step.init = 0.1, verbose=FALSE, ...)

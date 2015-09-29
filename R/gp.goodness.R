@@ -16,6 +16,7 @@ r.squared <- function(model, ...)
 #' @param xp optional x-values
 #' @param yp optional y-values
 #' @method r.squared gp
+#' @export
 
 r.squared.gp <- function(model, xp = NULL, yp = NULL)
 {
