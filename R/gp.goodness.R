@@ -15,9 +15,9 @@ r.squared <- function(model, ...)
 #' @param gp Gaussian process
 #' @param xp optional x-values
 #' @param yp optional y-values
-#' @export
+#' @method r.squared gp
 
-r.squared <- function(model, xp = NULL, yp = NULL)
+r.squared.gp <- function(model, xp = NULL, yp = NULL)
 {
     gp <- model
 
