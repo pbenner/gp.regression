@@ -21,9 +21,9 @@ gp <- new.gp(0.5, kernel.squared.exponential(8, 10),
              likelihood=NULL,
              link=new.link("probit"),
              dim=2)
-gp <- posterior(gp, xp, yp)
+gp <- posterior(gp, xp, yp, verbose=T)
 
-p <- plot(gp, x, verbose=T)
+p <- plot(gp, x)
 p$p1 <- p$p1 + scale_shape_identity()
 p$p1 <- p$p1 + geom_point(data=data.frame(x=xp[,1], y=xp[,2],
                                     z = sapply(yp[,1], function(x) if(x == 1) 43 else 45)),
