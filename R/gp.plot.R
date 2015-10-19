@@ -18,7 +18,7 @@ library("ggplot2")
 library("gridExtra")
 library("scales")
 
-plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.mean="red", plot.mean = TRUE, plot.scatter=TRUE, ...)
+plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.mean="red", plot.mean = TRUE, plot.variance=TRUE, plot.scatter=TRUE, ...)
 {
     result <- summarize(gp, x, ...)
 
@@ -34,7 +34,7 @@ plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.
                             aes(x = x, y = y))
     }
     # and the variance
-    if (!is.null(result$variance)) {
+    if (plot.variance && !is.null(result$variance)) {
         p <- p + geom_ribbon(data=data.frame(x=x,
                                              ymin=result$mean-2*sqrt(result$variance),
                                              ymax=result$mean+2*sqrt(result$variance)),
