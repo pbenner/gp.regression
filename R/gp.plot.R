@@ -18,26 +18,33 @@ library("ggplot2")
 library("gridExtra")
 library("scales")
 
-plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.3, plot.scatter=TRUE, ...)
+plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.mean="red", plot.mean = TRUE, plot.scatter=TRUE, ...)
 {
     result <- summarize(gp, x, ...)
 
-    p <- ggplot(data.frame(x = x, mean = result$mean), aes(x=x)) +
-        geom_line(aes(y=mean)) +
-        ggtitle(main) +
-        xlab(xlabel) +
-        ylab(ylabel)
+    p <- ggplot(data.frame(x = x, mean = result$mean), aes(x=x))
+    # add labels and title
+    p <- p + xlab(xlabel)
+    p <- p + ylab(ylabel)
+    p <- p + ggtitle(main)
 
+    # first add the scatter plot
+    if (plot.scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
+        p <- p + geom_point(data=data.frame(x=gp$xp, y=gp$yp),
+                            aes(x = x, y = y))
+    }
+    # and the variance
     if (!is.null(result$variance)) {
         p <- p + geom_ribbon(data=data.frame(x=x,
                                              ymin=result$mean-2*sqrt(result$variance),
                                              ymax=result$mean+2*sqrt(result$variance)),
                              aes(ymin=ymin, ymax=ymax),
+                             col="gray", fill="black",
                              alpha=alpha)
     }
-    if (plot.scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
-        p <- p + geom_point(data=data.frame(x=gp$xp, y=gp$yp),
-                            aes(x = x, y = y))
+    # on top the regression line
+    if (plot.mean) {
+        p <- p + geom_line(aes(y=mean), col=col.mean)
     }
     return (p)
 }
