@@ -104,6 +104,7 @@ plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
 #'
 #' @param x Gaussian process
 #' @param y positions where to evaluate the Gaussian process
+#' @param covariates plot only the given covariates
 #' @param ... arguments to be passed to methods
 #' @method plot gp
 #' @export
