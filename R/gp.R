@@ -104,7 +104,7 @@ summarize.gp <- function(model, x, return.covariance = FALSE, ...)
         return (NULL)
     }
     if (!is.matrix(x)) {
-        x <- as.matrix(x, 1)
+        x <- as.matrix(x)
     }
     # check dimension of the x-values
     stopifnot(dim(x)[2] == gp$dim)
