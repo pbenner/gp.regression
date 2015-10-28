@@ -18,11 +18,14 @@ library("ggplot2")
 library("gridExtra")
 library("scales")
 
-plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.mean="red", plot.mean = TRUE, plot.variance=TRUE, plot.scatter=TRUE, ...)
+plot.gp.1d <- function(gp, x, main="",
+                       xlabel=NULL, ylabel=NULL, alpha=0.5,
+                       col.mean="red", plot.mean = TRUE, plot.variance=TRUE,
+                       plot.scatter=TRUE, covariates=NULL, ...)
 {
     result <- summarize(gp, x, ...)
 
-    p <- ggplot(data.frame(x = x, mean = result$mean), aes(x=x))
+    p <- ggplot(data.frame(x = x[,covariates], mean = result$mean), aes(x=x))
     # add labels and title
     p <- p + xlab(xlabel)
     p <- p + ylab(ylabel)
@@ -30,12 +33,12 @@ plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.
 
     # first add the scatter plot
     if (plot.scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
-        p <- p + geom_point(data=data.frame(x=gp$xp, y=gp$yp),
+        p <- p + geom_point(data=data.frame(x=gp$xp[,covariates], y=gp$yp),
                             aes(x = x, y = y))
     }
     # and the variance
     if (plot.variance && !is.null(result$variance)) {
-        p <- p + geom_ribbon(data=data.frame(x=x,
+        p <- p + geom_ribbon(data=data.frame(x=x[,covariates],
                                              ymin=result$mean-2*sqrt(result$variance),
                                              ymax=result$mean+2*sqrt(result$variance)),
                              aes(ymin=ymin, ymax=ymax),
@@ -51,7 +54,8 @@ plot.gp.1d <- function(gp, x, main="", xlabel=NULL, ylabel=NULL, alpha=0.5, col.
 
 plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
                        low=muted("green"), mid="white", high=muted("red"),
-                       midpoint=NULL, ...)
+                       midpoint=NULL,
+                       covariates=NULL, ...)
 {
     # initialize all plot objects
     p1 <- NULL
@@ -64,7 +68,7 @@ plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
     midpoint <- sum(limits)/2.0
 
     # first, plot the expectation
-    p1 <- ggplot(data = data.frame(x = x[,1], y = x[,2], z = result$mean),
+    p1 <- ggplot(data = data.frame(x = x[,covariates[1]], y = x[,covariates[2]], z = result$mean),
                  aes_string(x = "x", y = "y", z = "z")) +
         geom_tile(aes_string(fill="z"), limits=limits) +
         stat_contour() +
@@ -72,13 +76,13 @@ plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
         ggtitle("Expected value")
 
     if (plot.scatter && !is.null(gp$xp) && dim(gp$yp)[2] == 1) {
-        p1 <- p1 + geom_point(data=data.frame(x=gp$xp[,1], y=gp$xp[,2], z = gp$yp),
+        p1 <- p1 + geom_point(data=data.frame(x=gp$xp[,covariates[1]], y=gp$xp[,covariates[2]], z = gp$yp),
                               aes(x = x, y = y, colour = z))
     }
 
     # plot varience only if plot.variance is TRUE
     if (plot.variance) {
-        p2 <- ggplot(data = data.frame(x = x[,1], y = x[,2], z = result$variance),
+        p2 <- ggplot(data = data.frame(x = x[,covariates[1]], y = x[,covariates[2]], z = result$variance),
                      aes_string(x = "x", y = "y", z = "z")) +
             geom_tile(aes_string(fill="z")) +
             stat_contour() +
@@ -104,17 +108,21 @@ plot.gp.2d <- function(gp, x, plot.variance=TRUE, plot.scatter=FALSE,
 #' @method plot gp
 #' @export
 
-plot.gp <- function(x, y, ...)
+plot.gp <- function(x, y, covariates=NULL, ...)
 {
     # rename variables
     gp <- x
-    x  <- y
+    x  <- as.matrix(y)
 
-    if (dim(gp) == 1) {
-        plot.gp.1d(gp, x, ...)
+    if (is.null(covariates)) {
+        covariates <- 1:dim(gp)
     }
-    else if (dim(gp) == 2) {
-        plot.gp.2d(gp, x, ...)
+
+    if (length(covariates) == 1) {
+        plot.gp.1d(gp, x, covariates=covariates, ...)
+    }
+    else if (length(covariates) == 2) {
+        plot.gp.2d(gp, x, covariates=covariates, ...)
     }
     else {
         stop("Gaussian process has invalid dimension.")
@@ -134,7 +142,7 @@ plot.gp.heteroscedastic <- function(x, y, alpha=0.3, ...)
 {
     # rename variables
     model <- x
-    x     <- y
+    x     <- as.matrix(y)
 
     result <- summarize(model, x)
 
