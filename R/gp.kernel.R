@@ -197,3 +197,20 @@ kernel.matern <- function(l, var, nu)
     }
     return (f)
 }
+
+#' Create a combined kernel
+#' 
+#' @param ... list of kernel functions
+#' @param operator function used to combine the kernel functions
+#' @export
+
+kernel.combined <- function(..., operator = "+")
+{
+    l <- list(...)
+    stopifnot(length(l) >= 1)
+
+    f <- function(...) {
+        Reduce(operator, lapply(l, function(f) f(...)))
+    }
+    return (f)
+}
