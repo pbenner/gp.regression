@@ -77,7 +77,7 @@ Ornstein-Uhlenbeck | *kernel.ornstein.uhlenbeck* | l, variance
 Matern | *kernel.matern* | l, variance, nu
 Combined kernel | *kernel.combined* | k1, k2, ..., kn (kernel functions)
 
-![Samples with different kernel functions](demo/kernel.png)
+![Samples with different kernel functions](demo/kernel1.png)
 
 ### Likelihood models and link functions
 
