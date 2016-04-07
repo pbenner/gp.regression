@@ -29,7 +29,6 @@ f1 <- draw.sample(gp, x, ep=0.000001)
 f2 <- draw.sample(gp, x, ep=0.000001)
 f3 <- draw.sample(gp, x, ep=0.000001)
 
-plot (x, f2, type="l", lty=1, ylab="f", col=1)
 plot (x, f1, type="l", lty=1, ylab="f", col=1, ylim=c(min(f1,f2,f3),max(f1,f2,f3)))
 lines(x, f2, type="l", col=2)
 lines(x, f3, type="l", col=3)

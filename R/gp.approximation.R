@@ -57,7 +57,7 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, ...)
     # number of positions where measurements are available
     n <- dim(xp)[[1]]
     # f, fold
-    if (!is.null(gp$approximation.d)) {
+    if (!is.null(gp$approximation.d) && nrow(gp$approximation.d) == n) {
         f     <- L %*% (t(L) %*% gp$approximation.d)
         f.old <- f
     }
