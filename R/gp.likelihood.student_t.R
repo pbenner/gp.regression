@@ -20,13 +20,13 @@
 #' @param ... unused
 #' @export
 
-new.likelihood.gamma <- function(alpha, ...) {
+new.likelihood.student_t <- function(alpha, ...) {
     result <- list(alpha = alpha)
-    class(result) <- c("likelihood.gamma", "likelihood")#classname likelihood.gamma
+    class(result) <- c("likelihood.student_t", "likelihood")
     result
 }
 
-logp.likelihood.gamma <- function(model, y, mean, ...)
+logp.likelihood.student_t <- function(model, y, mean, ...)
 {
     if (!is.vector(mean)) {
         mean <- as.vector(mean)
@@ -34,30 +34,26 @@ logp.likelihood.gamma <- function(model, y, mean, ...)
     if (!is.vector(y)) {
         y <- as.vector(y)
     }
-    stopifnot(length(mean) == 1 || length(mean) == length(y))#length of mean has to be 1 or the same as length of y, but why?
 
-    shape = model$alpha
-    scale = mean/shape# scale (1/beta) is determined by alpha and mean, therefore not necessary as an input paramter.
-
-    sum(dgamma(y, shape=shape, scale=scale, log=TRUE))#This is just plane old gamma distribution, but why the sum? approximation of integration? maybe see SUMMATION of wikipedia page of Gamma distribution.
+   #implement here. 
 }
 
-gradient.likelihood.gamma <- function(likelihood, link, f, yp, n) {#What is f and yp??? yp must be y datapoints as far as the other codes go. f must be the posterior step.
+gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # d: d/dx log p(y|f)
     d     <- as.matrix(rep(0, n))
-    # parameter of the gamma likelihood
-    alpha <- likelihood$alpha
+    # parameter of the student_t likelihood
+    alpha <- likelihood$alpha#change here
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
-        # observation at position x[[i]] #and yes, observation at x[[i]] is yp[[i]]
+        # observation at position x[[i]]
         yx  <- yp[[i]]
         # value of the response derivative evaluated at fx
         Nfx <- link$response.derivative(fx)
         # response evaluated at fx
         Pfx <- link$response(fx)
         # gradient
-        d[[i]] <- -alpha*Nfx/Pfx*(1-yx/Pfx)
+        d[[i]] <- -alpha*Nfx/Pfx*(1-yx/Pfx)#implement here
     }
     return (d)
 }
@@ -67,10 +63,10 @@ gradient.likelihood.gamma <- function(likelihood, link, f, yp, n) {#What is f an
 #' @param model probabilistic model
 #' @param ... arguments to be passed to methods
 
-hessian.likelihood.gamma <- function(likelihood, link, f, yp, n) {
+hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # W: Hessian of log p(y|f)
     W     <- diag(n)
-    # parameter of the gamma likelihood
+    # parameter of the student_t likelihood
     alpha <- likelihood$alpha
     for (i in 1:n) {
         # current f value at x[[i]]
@@ -84,7 +80,7 @@ hessian.likelihood.gamma <- function(likelihood, link, f, yp, n) {
         Pfx <- link$response(fx)
         # Hessian
         W[[i,i]] <- alpha*Nfx1^2/Pfx^2*(1 - 2*yx/Pfx) -
-                    alpha*Nfx2  /Pfx  *(1 -   yx/Pfx)
+                    alpha*Nfx2  /Pfx  *(1 -   yx/Pfx)#implement here
     }
     return (W)
 }
