@@ -17,13 +17,13 @@
 #' Create a new likelihood model
 #' 
 #' @param type name of the likelihood model
-#' @param ... unused
+#' @param ... udfsed
 #' @export
 
 # implementation of non-standardized student's t likelihood.
-new.likelihood.student_t <- function(nu, sigma, ..) {
-    #nu: deg. of freedom, sigma: scale parameter.
-    result <- list(nu = nu, sigma = sigma) 
+new.likelihood.student_t <- function(df, sigma, ..) {
+    #df: degree of freedom, sigma: scale parameter.
+    result <- list(df = df, sigma = sigma) 
     class(result) <- c("likelihood.student_t", "likelihood")
     result
 }
@@ -31,14 +31,14 @@ new.likelihood.student_t <- function(nu, sigma, ..) {
 logp.likelihood.student_t <- function(model, y, mean, ...)
 {
     if (!is.vector(mean)) {
-        mean <- as.vector(mean)
+        mean <- as.vector(mean) #mean defined against what?
     }
     if (!is.vector(y)) {
         y <- as.vector(y)
     }
-    nu = model$nu
-    sigma = model$sigma
-    result = lZ - (nu+1)*log( 1+r2./(nu.*sn2) )/2;  #implement here. 
+    df <- model$df
+    sigma <- model$sigma
+    result <- sigma * df(x, df, 0) #How do a specify x here?
     return (result)
 }
 
@@ -46,16 +46,16 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # d: d/dx log p(y|f)
     d     <- as.matrix(rep(0, n))
     # parameter of the student_t likelihood
-    nu <- likelihood$nu#change here
+    df <- likelihood$df
+    sigma <- model$sigma
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx  <- yp[[i]]
-        # response evaluated at fx
-        Pfx <- link$response(fx)
         # gradient
-        d[[i]] <- -nu*Nfx/Pfx*(1-yx/Pfx)#implement here
+        r = r.student_t(y, mu) #copied and pasted 3 lines from gpml
+        d[[i]] <- (nu+1)*r./a
     }
     return (d)
 }
@@ -69,20 +69,24 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # W: Hessian of log p(y|f)
     W     <- diag(n)
     # parameter of the student_t likelihood
-    nu <- likelihood$nu
+    df <- likelihood$df
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx <- yp[[i]]
-        # value of the first and second response derivative evaluated at fx
-        Nfx1 <- link$response.derivative(fx, 1)
-        Nfx2 <- link$response.derivative(fx, 2)
-        # response evaluated at fx
-        Pfx <- link$response(fx)
+        r <- r.student_t(y, mu) #copied and pasted 3 lines from gpml
+        rsqwr <- rsqwr.student_t(r)
         # Hessian
-        W[[i,i]] <- nu*Nfx1^2/Pfx^2*(1 - 2*yx/Pfx) -
-                    nu*Nfx2  /Pfx  *(1 -   yx/Pfx)#implement here
+        W[[i,i]] <- (nu+1)*(rsqwr-nu*sn2)./a.^2;
     }
     return (W)
+}
+
+r.student_t <- function(y, mu){
+    r = y - mu
+}
+
+rsqwr.student_t <- function(r){
+    rsqwr = r*r
 }
