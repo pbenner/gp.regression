@@ -20,8 +20,10 @@
 #' @param ... unused
 #' @export
 
-new.likelihood.student_t <- function(alpha, ...) {
-    result <- list(alpha = alpha)
+# implementation of non-standardized student's t likelihood.
+new.likelihood.student_t <- function(nu, sigma, ..) {
+    #nu: deg. of freedom, sigma: scale parameter.
+    result <- list(nu = nu, sigma = sigma) 
     class(result) <- c("likelihood.student_t", "likelihood")
     result
 }
@@ -34,26 +36,26 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     if (!is.vector(y)) {
         y <- as.vector(y)
     }
-
-   #implement here. 
+    nu = model$nu
+    sigma = model$sigma
+    result = lZ - (nu+1)*log( 1+r2./(nu.*sn2) )/2;  #implement here. 
+    return (result)
 }
 
 gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # d: d/dx log p(y|f)
     d     <- as.matrix(rep(0, n))
     # parameter of the student_t likelihood
-    alpha <- likelihood$alpha#change here
+    nu <- likelihood$nu#change here
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx  <- yp[[i]]
-        # value of the response derivative evaluated at fx
-        Nfx <- link$response.derivative(fx)
         # response evaluated at fx
         Pfx <- link$response(fx)
         # gradient
-        d[[i]] <- -alpha*Nfx/Pfx*(1-yx/Pfx)#implement here
+        d[[i]] <- -nu*Nfx/Pfx*(1-yx/Pfx)#implement here
     }
     return (d)
 }
@@ -67,7 +69,7 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # W: Hessian of log p(y|f)
     W     <- diag(n)
     # parameter of the student_t likelihood
-    alpha <- likelihood$alpha
+    nu <- likelihood$nu
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
@@ -79,8 +81,8 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         # response evaluated at fx
         Pfx <- link$response(fx)
         # Hessian
-        W[[i,i]] <- alpha*Nfx1^2/Pfx^2*(1 - 2*yx/Pfx) -
-                    alpha*Nfx2  /Pfx  *(1 -   yx/Pfx)#implement here
+        W[[i,i]] <- nu*Nfx1^2/Pfx^2*(1 - 2*yx/Pfx) -
+                    nu*Nfx2  /Pfx  *(1 -   yx/Pfx)#implement here
     }
     return (W)
 }
