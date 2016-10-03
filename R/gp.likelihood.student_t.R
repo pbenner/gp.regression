@@ -38,7 +38,7 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     }
     df <- model$df
     sigma <- model$sigma
-    result <- sigma * df(x, df, 0) #How do a specify x here?
+    result <- sigma * df(x, df, 0) #How do a specify x here? mean?
     return (result)
 }
 
@@ -54,7 +54,7 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         # observation at position x[[i]]
         yx  <- yp[[i]]
         # gradient
-        r = r.student_t(y, mu) #copied and pasted 3 lines from gpml
+        r = student_t.r(y, mu) #copied and pasted 3 lines from gpml
         d[[i]] <- (nu+1)*r./a
     }
     return (d)
@@ -75,18 +75,19 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx <- yp[[i]]
-        r <- r.student_t(y, mu) #copied and pasted 3 lines from gpml
-        rsqwr <- rsqwr.student_t(r)
+        r <- student_t.r(y, mu)
+        #copied and pasted 3 lines from gpml
+        rsqwr <- student_t.rsqwr(r)
         # Hessian
         W[[i,i]] <- (nu+1)*(rsqwr-nu*sn2)./a.^2;
     }
     return (W)
 }
 
-r.student_t <- function(y, mu){
+student_t.r <- function(y, mu){
     r = y - mu
 }
 
-rsqwr.student_t <- function(r){
+student_t.rsqwr <- function(r){
     rsqwr = r*r
 }
