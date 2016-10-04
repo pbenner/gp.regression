@@ -38,7 +38,7 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     }
     df <- model$df
     sigma <- model$sigma
-    result <- sigma * df(x, df, 0) #How do a specify x here? mean?
+    result <- sigma * df(mean - y, df, 0, log = TRUE) #Why do a specify y for x here?
     return (result)
 }
 
@@ -52,10 +52,12 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
-        yx  <- yp[[i]]
+        yx  <- yp[[i]]# in gpml, y only appears when asigning values to r.
+        r <- yx - mu
+        rsqwr <- r*r
+        a <- r2+nu*sn2 #make sure what sn2 is.
         # gradient
-        r = student_t.r(y, mu) #copied and pasted 3 lines from gpml
-        d[[i]] <- (nu+1)*r./a
+        d[[i]] <- (df+1)*r/a #check df is correctly defined, likely to need +1.
     }
     return (d)
 }
@@ -75,19 +77,11 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx <- yp[[i]]
-        r <- student_t.r(y, mu)
-        #copied and pasted 3 lines from gpml
-        rsqwr <- student_t.rsqwr(r)
+        r <- y - mu
+        rsqwr <- r*r
+        a = r2+df*sn2;
         # Hessian
-        W[[i,i]] <- (nu+1)*(rsqwr-nu*sn2)./a.^2;
+        W[[i,i]] <- (nu+1)*(rsqwr-nu*sn2)/a.^2;#check df is correctly defined, likely to need +1.
     }
     return (W)
-}
-
-student_t.r <- function(y, mu){
-    r = y - mu
-}
-
-student_t.rsqwr <- function(r){
-    rsqwr = r*r
 }
