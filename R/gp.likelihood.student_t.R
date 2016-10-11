@@ -38,7 +38,7 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     }
     df <- model$df #Note: This line overrides df, a function in the R global namespace
     sigma <- model$sigma
-    result <- dt( (mean - y) / sigma, df, 0, log = TRUE) / sigma #y is x, see nomenclature of GPy for example
+    result <- dt( (mean - y) / sigma, df, 0, log = TRUE) - log(sigma) #y is x, see nomenclature of GPy for example
     return (result)# dt (R) and tpdf (matlab) matches
 }
 
