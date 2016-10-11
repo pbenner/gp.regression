@@ -36,10 +36,10 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     if (!is.vector(y)) {
         y <- as.vector(y)
     }
-    df <- model$df
+    df <- model$df #Note: This line overrides df, a function in the R global namespace
     sigma <- model$sigma
-    result <- sigma * df(mean - y, df, 0, log = TRUE) #Why do a specify y for x here?
-    return (result)
+    result <- dt( (mean - y) / sigma, df, 0, log = TRUE) / sigma #y is x, see nomenclature of GPy for example
+    return (result)# dt (R) and tpdf (matlab) matches
 }
 
 gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
@@ -47,7 +47,7 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     d     <- as.matrix(rep(0, n))
     # parameter of the student_t likelihood
     df <- likelihood$df
-    sigma <- model$sigma
+    sigma <- likelihood$sigma
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
