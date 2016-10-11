@@ -44,20 +44,21 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
 
 gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # d: d/dx log p(y|f)
-    d     <- as.matrix(rep(0, n))
+    d <- as.matrix(rep(0, n))
     # parameter of the student_t likelihood
     df <- likelihood$df
     sigma <- likelihood$sigma
+    #calculate mu here.
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx  <- yp[[i]]# in gpml, y only appears when asigning values to r.
-        r <- yx - mu
+        r <- yx - fx
         rsqwr <- r*r
-        a <- r2+nu*sn2 #make sure what sn2 is.
+        a <- r2+nu*sigma^2
         # gradient
-        d[[i]] <- (df+1)*r/a #check df is correctly defined, likely to need +1.
+        d[[i]] <- df*r/a
     }
     return (d)
 }
@@ -72,6 +73,7 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     W     <- diag(n)
     # parameter of the student_t likelihood
     df <- likelihood$df
+    sn2 = sigma^2
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
@@ -79,9 +81,9 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         yx <- yp[[i]]
         r <- y - mu
         rsqwr <- r*r
-        a = r2+df*sn2;
+        a <- r2+df*sn2;
         # Hessian
-        W[[i,i]] <- (nu+1)*(rsqwr-nu*sn2)/a.^2;#check df is correctly defined, likely to need +1.
+        W[[i,i]] <- df*(rsqwr-nu*sn2)/a.^2;#check df is correctly defined, likely to need +1.
     }
     return (W)
 }
