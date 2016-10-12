@@ -53,12 +53,12 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
-        yx  <- yp[[i]]# in gpml, y only appears when asigning values to r.
+        yx  <- yp[[i]]
         r <- yx - fx
         rsqwr <- r*r
-        a <- r2+nu*sigma^2
+        a <- rsqwr+df*sigma^2
         # gradient
-        d[[i]] <- df*r/a
+        d[[i]] <- (df+1)*r/a
     }
     return (d)
 }
