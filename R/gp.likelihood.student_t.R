@@ -73,17 +73,18 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     W     <- diag(n)
     # parameter of the student_t likelihood
     df <- likelihood$df
+    sigma <- likelihood$sigma
     sn2 = sigma^2
     for (i in 1:n) {
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
         yx <- yp[[i]]
-        r <- y - mu
+        r <- yx - fx
         rsqwr <- r*r
-        a <- r2+df*sn2;
+        a <- rsqwr+df*sigma^2;
         # Hessian
-        W[[i,i]] <- df*(rsqwr-nu*sn2)/a.^2;#check df is correctly defined, likely to need +1.
+        W[[i,i]] <- (df+1)*(rsqwr-df*sn2)/a^2;#check df is correctly defined, likely to need +1.
     }
     return (W)
 }
