@@ -49,6 +49,9 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, ...)
     yp         <- gp$yp
     L          <- gp$prior.sigma.L
     link       <- gp$link
+    if (link == NULL)
+      print("null link")
+    end
     mean       <- link$link(gp$prior.mean)
     likelihood <- gp$likelihood
     if (is.infinite(mean) || is.nan(mean)) {

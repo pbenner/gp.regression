@@ -167,6 +167,7 @@ posterior <- function(model, ...)
 posterior.gp <- function(model, xp, yp, ep=NULL, ...)
 {
     gp <- model
+    print("hello")
 
     # check arguments
     if (!is.null(xp) && !is.matrix(xp)) {

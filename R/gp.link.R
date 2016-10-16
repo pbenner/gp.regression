@@ -28,6 +28,10 @@ new.link <- function(type = "probit", ...)
     else if (type == "logistic") {
         new.link.logistic(...)
     }
+    else if (type == "null") { # A null link function doesn't do anything. 
+    #For likelihood models that doesn't require link functions.
+        new.link.null(...)
+    }
     else {
         stop("Unknown type.")
     }
