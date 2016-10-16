@@ -61,6 +61,17 @@ new.link.logistic <- function(...) {
     result
 }
 
+new.link.null <- function(...) {
+    # A null link function doesn't do anything. 
+    # It can be used in likelihood models that doesn't require link functions for Laplace approximation.
+    result   <- list(link                = function(x) x, # link function
+                     response            = NULL,
+                     response.derivative = NULL,
+    class(result) <- c("link.null", "link")
+    result
+}
+
+
 #' Summarize the posterior of a Gaussian process equipped with a probit link function
 #' 
 #' @param model probit link object
