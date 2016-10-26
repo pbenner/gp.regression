@@ -66,7 +66,7 @@ new.link.null <- function(...) {
     # It can be used in likelihood models that doesn't require link functions for Laplace approximation.
     result   <- list(link                = function(x) x, # link function
                      response            = NULL,
-                     response.derivative = NULL,
+                     response.derivative = NULL)
     class(result) <- c("link.null", "link")
     result
 }
