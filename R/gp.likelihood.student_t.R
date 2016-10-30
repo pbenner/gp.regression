@@ -23,7 +23,6 @@
 # implementation of non-standardized student's t likelihood.
 new.likelihood.student_t <- function(df, sigma, ..) {
     #df: degree of freedom, sigma: scale parameter.
-    print("in student_t init")
     result <- list(df = df, sigma = sigma) 
     class(result) <- c("likelihood.student_t", "likelihood")
     result
@@ -39,13 +38,12 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     }
     df <- model$df #Note: This line overrides df, a function in the R global namespace
     sigma <- model$sigma
-    result <- dt( (mean - y) / sigma, df, 0, log = TRUE) - log(sigma) #y is x, see nomenclature of GPy for example
+    result <- dt( (mean - y) / sigma, df, 0, log = TRUE) - log(sigma)
     return (result)# dt (R) and tpdf (matlab) matches
 }
 
 gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
     # d: d/dx log p(y|f)
-    print("in student_t")
     d <- as.matrix(rep(0, n))
     # parameter of the student_t likelihood
     df <- likelihood$df
