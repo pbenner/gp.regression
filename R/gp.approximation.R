@@ -43,15 +43,13 @@ approximate.posterior.step <- function(f, yp, mean, L, likelihood, link, n)
     return (f)
 }
 
-approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, ...)
+approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="newton", ...)
 {
+    print("approximating posterior")
     xp         <- gp$xp
     yp         <- gp$yp
     L          <- gp$prior.sigma.L
     link       <- gp$link
-    if (link == NULL)
-      print("null link")
-    end
     mean       <- link$link(gp$prior.mean)
     likelihood <- gp$likelihood
     if (is.infinite(mean) || is.nan(mean)) {
@@ -69,17 +67,21 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, ...)
         f.old <- f
     }
     i <- 0
-    repeat {
-        i <- i + 1
-        # run Newton steps until convergence
-        f <- approximate.posterior.step(f, yp, mean, L, likelihood, link, n)
-        if (verbose) {
-            print(sprintf("Newton step... %d (error: %f)", i, norm(f - f.old)))
-        }
-        if (norm(f - f.old) < epsilon) {
-            break
-        }
-        f.old <- f
+    if (method == "newton"){
+        repeat { #REFACTOR: make newton algorythm a separate method.
+            i <- i + 1
+            # run Newton steps until convergence
+            f <- approximate.posterior.step(f, yp, mean, L, likelihood, link, n)
+            if (verbose) {
+                print(sprintf("Newton step... %d (error: %f)", i, norm(f - f.old)))
+            }
+            if (norm(f - f.old) < epsilon) {
+                break
+            }
+            f.old <- f
+            }
+    } else if (method == "irsl"){
+        f <- approximate.posterior.irls() 
     }
     # evaluate the derivative at the current position
     d <- gradient(likelihood, link, f, yp, n)
@@ -105,6 +107,28 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, ...)
     gp
 }
 
+approximate.posterior.psi  <- function(gp, alpha,K,m){#changing alpha and m works fine.
+  # K, yp and hyper parameters also tested.
+  # f is calculated so don't need to test, same in matlab.
+    alpha = matrix(alpha,length(alpha)) #make sure that alpha is a column vector
+    z <- K %*% alpha
+    #print(z)
+    f <- z + m
+    #print('f')
+    #print(f)
+    #print('f')
+    lp = logp(gp$likelihood, gp$yp, f)# works up till here with vector and matrix inputs.
+    psi = t(alpha) %*% z /2 - sum(lp)
+    return(psi)
+}
+
+approximate.posterior.irls <- function(alpha, mean, K, link){
+# Numerically stable mode finding. Influenced by GPML 4.0 (BSD)
+# not suer if I need mean here. can I remove K?
+    K <-  gp$kernelf(gp$xp)
+    dK
+}
+
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
 {
     if (!is.null(gp$approximation.B.inv.chol)) {
@@ -112,7 +136,7 @@ approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
         # (c.f. Rasmussen 2006, Algorithm 3.2)
         mean     <- drop(gp$link$link(gp$prior.mean) + k2 %*% gp$approximation.d)
         v        <- t(gp$approximation.B.inv.chol) %*% (gp$approximation.V %*% k1)
-        variance <- diag(k3 - t(v) %*% v)
+        variance <- diag(k3 - t(v) %*% v)#cf. Rasmussen 2006, Eq. 3.29
     }
     else {
         mean     <- drop(gp$link$link(gp$prior.mean) + k2 %*% gp$approximation.d)
