@@ -39,7 +39,7 @@ logp.likelihood.student_t <- function(model, y, mean, ...)
     df <- model$df #Note: This line overrides df, a function in the R global namespace
     sigma <- model$sigma
     result <- dt( (mean - y) / sigma, df, 0, log = TRUE) - log(sigma)
-    return (result)# dt (R) and tpdf (matlab) matches
+    return (as.matrix(result))# dt (R) and tpdf (matlab) matches
 }
 
 gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
