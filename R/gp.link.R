@@ -62,7 +62,7 @@ new.link.logistic <- function(...) {
 }
 
 new.link.null <- function(...) {
-    # A null link function doesn't do anything. 
+    # A null link object doesn't do anything. 
     # It can be used in likelihood models that doesn't require link functions for Laplace approximation.
     result   <- list(link                = function(x) x, # link function
                      response            = NULL,
