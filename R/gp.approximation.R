@@ -107,7 +107,8 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     gp
 }
 
-approximate.posterior.psi  <- function(gp, alpha,K,m){#changing alpha and m works fine.
+
+approximate.posterior.psi  <- function(gp, alpha, K, m){#changing alpha and m works fine.
   # K, yp and hyper parameters also tested.
   # f is calculated so don't need to test, same in matlab.
     alpha = matrix(alpha,length(alpha)) #make sure that alpha is a column vector
@@ -125,8 +126,27 @@ approximate.posterior.psi  <- function(gp, alpha,K,m){#changing alpha and m work
 approximate.posterior.irls <- function(alpha, mean, K, link){
 # Numerically stable mode finding. Influenced by GPML 4.0 (BSD)
 # not suer if I need mean here. can I remove K?
-    K <-  gp$kernelf(gp$xp)
-    dK
+#parameters thac can be optional. Put somewhere else later.
+    maxit = 20
+    Wmin = 0.0
+    tol = 1e-6
+    smin_line = 0 
+    smax_line = 2           % min/max line search steps size range
+    nmax_line = 10                          % maximum number of line search steps
+    thr_line = 1e-4           
+
+    K <- gp$kernelf(gp$xp)
+    
+}
+
+approximate.posterior.psi_line <- function(gp, s, alpha, dalpha, m, K){
+    psi <- approximate.posterior.psi(gp, alpha + s * dalpha, m, K)
+}
+
+approximate.posterior.line_search(interval=c(0,2), ){
+    #‘f’ will be called as ‘f(x, ...)’ for a numeric value of x.
+    optimize(approximate.posterior.psi_line,
+             interval)#work in progress.
 }
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
