@@ -107,46 +107,71 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     gp
 }
 
-approximate.posterior.irls <- function(alpha, mean, K, link){
-# Numerically stable mode finding. Influenced by GPML 4.0 (BSD)
+approximate.posterior.irls <- function(gp, mean, n){
+# Numerically stable mode finding. Code translated from GPML 4.0 (BSD)
 # not suer if I need mean here. can I remove K?
-#parameters thac can be optional. Put somewhere else later.
-    maxit = 20
-    Wmin = 0.0
-    tol = 1e-6
-    smin_line = 0 
-    smax_line = 2           # min/max line search steps size range
-    nmax_line = 10          # maximum number of line search steps
-    thr_line = 1e-4           
-
+# parameters thac can be optional. Put somewhere else later.
+    alpha <- matrix(0, length(alpha)) #make sure that alpha is a column vector
+    maxit <-  20 #settings
+    Wmin <- 0.0
+    tol <- 1e-6
     K <- gp$kernelf(gp$xp)
-    
+    f <- K %*% alpha + mean
+    d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
+    W <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
+    Psi_new <- approximate.posterior.psi(gp, alpha, m, K)
+    Psi_old <- Inf
+    #variable  "it" comes here in GPML
+    while(Psi_old - Psi_new > tol && it < maxit){
+        Psi_old <- Psi_new
+        W <- pmax(W,Wmin)
+        ldB2_result = approximate.posterior.irls.ldB2_exact(W, K)
+        b = W * (f - mean)
+    }
 }
 
-approximate.posterior.psi  <- function(gp, alpha, K, m){#changing alpha and m works fine.
+#' Compute psi
+#' Sorry for the cryptic variables, these are named after GPML v4.0
+#' 
+#' @param gp model Gaussian process
+#' @param alpha
+#' @param m
+#' @param K covariance matrix
+
+approximate.posterior.irls.psi  <- function(gp, alpha, m, K){#changing alpha and m works fine.
   # K, yp and hyper parameters also tested.
   # f is calculated so don't need to test, same in matlab.
-    alpha = matrix(alpha,length(alpha)) #make sure that alpha is a column vector
+    alpha <- matrix(alpha,length(alpha)) #make sure that alpha is a column vector
     z <- K %*% alpha
-    #print(z)
     f <- z + m
-    #print('f')
-    #print(f)
-    #print('f')
-    lp = logp(gp$likelihood, gp$yp, f)#I need gp$y here, GPML puts input y into likfun object.
-    psi = t(alpha) %*% z /2 - sum(lp)# works with vector and matrix inputs.
+    lp <- logp(gp$likelihood, gp$yp, f)
+    psi <- t(alpha) %*% z /2 - sum(lp)
     return(psi)
 }
 
-approximate.posterior.psi_line <- function(alpha, dalpha, s, K, m, gp){
-    psi <- approximate.posterior.psi(gp, alpha + s * dalpha, K, m)
+#' Compute psi_lin
+#' Sorry for the cryptic variables, these are named after GPML v4.0
+#' 
+#' @param alpha
+#' @param dalpha
+#' @param s
+#' @param m
+#' @param K covariance matrix
+#' @param gp model Gaussian process
+
+approximate.posterior.irls.psi_line <- function(alpha, dalpha, s, m, K, gp){
+    psi <- approximate.posterior.irls.psi(gp, alpha + s * dalpha, m, K)
     return(psi)
 }#debug this function.
 
-approximate.posterior.search_line <- function(interval=c(0,2), gp, s, alpha, dalpha, m, K){
-    #‘f’ will be called as ‘f(x, ...)’ for a numeric value of x.
+approximate.posterior.irls.search_line <- function(interval=c(0,2), gp, s, dalpha, m, K){
+    smin_line <- 0 
+    smax_line <- 2           # min/max line search steps size range
+    nmax_line <- 10          # maximum number of line search steps
+    thr_line <- 1e-4           
     alpha <- optimize(approximate.posterior.psi_line,
-             interval, dalpha, s, m, K, gp)
+             interval, dalpha, s, m, K, gp)#this line works but not tested regorously.
+    
     #alpha matches with gpml.
     #f, dlp and W like in line 100 (I think they are updated the same).
     # to do: test search_line
@@ -156,6 +181,40 @@ approximate.posterior.search_line <- function(interval=c(0,2), gp, s, alpha, dal
     #        test K.fun
     #        complete code
     #        test code
+    #        tidy the code, perhaps use a structure to put all the relevant parameters in.
+}
+
+#' Compute ldB2, and Q if necessary
+#' Sorry if the variables seem cryptic, their name are based on GPML v4.0
+#' 
+#' @param W vector of second derivative of log likelihood
+#' @param K covariance matrix
+#' @param n number of parameters of the model
+
+approximate.posterior.irls.ldB2_exact <- function(W, K, n){
+    isWneg <- any(W<0)
+    if (isWneg){ # switch between Cholesky and LU decomposition mode
+        A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
+        # Multiply W against K row by row elementwise, and add an identity matrix
+        lu_matrices <- expand(lu(A))# LU decomposition, A = P*L*U
+        diagonal_of_U <- diag(lu_matrices$U)
+        sign_of_U  <- prod(sign(diagonal_of_U))
+        # sign_of_U is 1 or -1 depending on the number of <0 elements in diagonal_of_U
+        if(sign_of_U != det(lu_matrices$P)){ #det(P) is 1 or -1
+            ldB2 <- Inf # log becomes complex for negative values, encoded by inf
+        } else {
+            ldB2 <- sum(log(abs(diagonal_of_U)))/2
+        }
+        Q <- solve( lu_matrices$U, solve(lu_matrices$L,lu_matrices$P) )
+        #implement somewhere: solveKiW = @(r) bsxfun(@times,W,Q*r)
+    }
+    else {
+        rootW <- sqrt(W)
+        L <- chol(diag(n) + rootW %*% t(rootW) * K)
+        ldB2 <- sum(log(diag(L))) 
+        Q = FALSE # Q is not necesary for solveKiW
+    }
+    result <- list(ldB2=ldB2, Q=Q)
 }
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
