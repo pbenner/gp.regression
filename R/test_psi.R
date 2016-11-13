@@ -7,4 +7,4 @@ K = matrix(1,2,2)
 K[[1,2]] = 2
 K[[2,1]] = 3
 K[[2,2]] = 4
-print(approximate.posterior.psi(gp, c(1,1), K, c(1,1)))
+print(approximate.posterior.irls.psi(gp, c(1,1), c(1,1), K))

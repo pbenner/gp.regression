@@ -15,7 +15,7 @@ for (alpha in c(1,10)){#check how the loop is organised.
                         gp$yp = y
                         K = gp$kernelf(x)#the resulting covariance matrix is different
                         K_result[[index]] = K
-                        result[[index]] = approximate.posterior.psi_line(alpha,dalpha,s,m,K,gp)
+                        result[[index]] = approximate.posterior.irls.psi_line(alpha,dalpha,s,m,K,gp)
                         #getting similar results but in a mixedup sequence
                         index = index + 1
                     }
@@ -24,3 +24,5 @@ for (alpha in c(1,10)){#check how the loop is organised.
         }
     }
 }
+print(result)
+plot(result)
