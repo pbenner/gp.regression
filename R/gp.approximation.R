@@ -119,14 +119,15 @@ approximate.posterior.irls <- function(gp, mean, n){
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
     W <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
-    Psi_new <- approximate.posterior.psi(gp, alpha, m, K)
+    Psi_new <- approximate.posterior.psi(gp, alpha, mean, K)
     Psi_old <- Inf
     #variable  "it" comes here in GPML
     while(Psi_old - Psi_new > tol && it < maxit){
         Psi_old <- Psi_new
         W <- pmax(W,Wmin)
+        b = W * (f - mean) + d
         ldB2_result = approximate.posterior.irls.ldB2_exact(W, K)
-        b = W * (f - mean)
+        dalpha = b - solveKiW
     }
 }
 
@@ -135,15 +136,15 @@ approximate.posterior.irls <- function(gp, mean, n){
 #' 
 #' @param gp model Gaussian process
 #' @param alpha
-#' @param m
+#' @param mean
 #' @param K covariance matrix
 
-approximate.posterior.irls.psi  <- function(gp, alpha, m, K){#changing alpha and m works fine.
+approximate.posterior.irls.psi  <- function(gp, alpha, mean, K){#changing alpha and mean works fine.
   # K, yp and hyper parameters also tested.
   # f is calculated so don't need to test, same in matlab.
     alpha <- matrix(alpha,length(alpha)) #make sure that alpha is a column vector
     z <- K %*% alpha
-    f <- z + m
+    f <- z + mean
     lp <- logp(gp$likelihood, gp$yp, f)
     psi <- t(alpha) %*% z /2 - sum(lp)
     return(psi)
@@ -155,22 +156,22 @@ approximate.posterior.irls.psi  <- function(gp, alpha, m, K){#changing alpha and
 #' @param alpha
 #' @param dalpha
 #' @param s
-#' @param m
+#' @param mean
 #' @param K covariance matrix
 #' @param gp model Gaussian process
 
-approximate.posterior.irls.psi_line <- function(alpha, dalpha, s, m, K, gp){
-    psi <- approximate.posterior.irls.psi(gp, alpha + s * dalpha, m, K)
+approximate.posterior.irls.psi_line <- function(alpha, dalpha, s, mean, K, gp){
+    psi <- approximate.posterior.irls.psi(gp, alpha + s * dalpha, mean, K)
     return(psi)
 }#debug this function.
 
-approximate.posterior.irls.search_line <- function(interval=c(0,2), gp, s, dalpha, m, K){
+approximate.posterior.irls.search_line <- function(interval=c(0,2), gp, s, dalpha, mean, K){
     smin_line <- 0 
     smax_line <- 2           # min/max line search steps size range
     nmax_line <- 10          # maximum number of line search steps
     thr_line <- 1e-4           
     alpha <- optimize(approximate.posterior.psi_line,
-             interval, dalpha, s, m, K, gp)#this line works but not tested regorously.
+             interval, dalpha, s, mean, K, gp)#this line works but not tested regorously.
     
     #alpha matches with gpml.
     #f, dlp and W like in line 100 (I think they are updated the same).
@@ -203,7 +204,7 @@ approximate.posterior.irls.ldB2_exact <- function(W, K, n){
         if(sign_of_U != det(lu_matrices$P)){ #det(P) is 1 or -1
             ldB2 <- Inf # log becomes complex for negative values, encoded by inf
         } else {
-            ldB2 <- sum(log(abs(diagonal_of_U)))/2
+            ldB2 <- sum(log(abs(diagonal_of_U)))/2 #FIXME ldB2 is not necesary!
         }
         Q <- solve( lu_matrices$U, solve(lu_matrices$L,lu_matrices$P) )
         #implement somewhere: solveKiW = @(r) bsxfun(@times,W,Q*r)
@@ -212,7 +213,7 @@ approximate.posterior.irls.ldB2_exact <- function(W, K, n){
         rootW <- sqrt(W)
         L <- chol(diag(n) + rootW %*% t(rootW) * K)
         ldB2 <- sum(log(diag(L))) 
-        Q = FALSE # Q is not necesary for solveKiW
+        Q = FALSE # Q is not necesary for solveKiW when cholsky decomposition is used
     }
     result <- list(ldB2=ldB2, Q=Q)
 }
