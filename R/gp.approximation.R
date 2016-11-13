@@ -107,34 +107,61 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     gp
 }
 
+#' Numerically stable mode finding.
+#' This function and related subroutines are
+#' essentialy a translation of GPML 4.0 (BSD)
+#' 
+#' @param gp model Gaussian process
+#' @param gp model Gaussian process
+#' @param alpha
+#' @param mean
+#' @param K covariance matrix
+
 approximate.posterior.irls <- function(gp, mean, n){
 # Numerically stable mode finding. Code translated from GPML 4.0 (BSD)
 # not suer if I need mean here. can I remove K?
 # parameters thac can be optional. Put somewhere else later.
     alpha <- matrix(0, length(alpha)) #make sure that alpha is a column vector
     maxit <-  20 #settings
-    Wmin <- 0.0
+    W_vectorMin <- 0.0
     tol <- 1e-6
     K <- gp$kernelf(gp$xp)
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-    W <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
+    W_vector <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
     Psi_new <- approximate.posterior.psi(gp, alpha, mean, K)
     Psi_old <- Inf
     #variable  "it" comes here in GPML
     while(Psi_old - Psi_new > tol && it < maxit){
         Psi_old <- Psi_new
-        W <- pmax(W,Wmin)
-        b <- W * (f - mean) + d
-        Q <- approximate.posterior.irls.ldB2_exact(W, K)
-        if(Q == FALSE){ # Q is FALSE when LU decomposition is used in above.
-        dalpha <- b - solveKiW
+        W_vector <- pmax(W_vector,W_vectorMin)
+        b <- W_vector * (f - mean) + d
+        if(any(W_vector<0)){
+            A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
+            # Multiply W_vector against K row by row elementwise, and add an identity matrix
+            Q <- solve(A)
+            # MATLAB:  solveKiW = @(r) bsxfun(@times, solve_chol(L,bsxfun(@times,r,sW)), sW) 
+            dalpha <- b - solve(L,sweep(r,sW,something))
+        }
+        else {
+            solveKiW = @(r) bsxfun(@times,W_vector,Q*r)
         }
     }
 }
 
-#' Compute psi
-#' Sorry for the cryptic variables, these are named after GPML v4.0
+approximate.posterior.irls.ldB2_exact <- function(W_vector, K, n){
+    W_has_negative <- any(W_vector<0)
+    if (W_has_negative){
+        A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
+        # Multiply W_vector against K row by row elementwise, and add an identity matrix
+        Q <- solve(A)
+    }
+    else {
+        Q = FALSE # Q is not necesary for solveKiW when cholsky decomposition is used
+    }
+    return(Q)
+}
+#' Computes psi
 #' 
 #' @param gp model Gaussian process
 #' @param alpha
@@ -153,7 +180,6 @@ approximate.posterior.irls.psi  <- function(gp, alpha, mean, K){#changing alpha 
 }
 
 #' Compute psi_lin
-#' Sorry for the cryptic variables, these are named after GPML v4.0
 #' 
 #' @param alpha
 #' @param dalpha
@@ -188,27 +214,10 @@ approximate.posterior.irls.search_line <- function(interval=c(0,2), gp, s, dalph
 }
 
 #' Compute ldB2, and Q if necessary
-#' Sorry if the variables seem cryptic, their name are based on GPML v4.0
 #' 
 #' @param W vector of second derivative of log likelihood
 #' @param K covariance matrix
 #' @param n number of parameters of the model
-
-approximate.posterior.irls.ldB2_exact <- function(W, K, n){
-    isWneg <- any(W<0)
-    if (isWneg){ # switch between Cholesky and LU decomposition mode
-        A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
-        # Multiply W against K row by row elementwise, and add an identity matrix
-        Q <- solve(A)
-    }
-    else {
-        rootW <- sqrt(W)
-        L <- chol(diag(n) + rootW %*% t(rootW) * K)
-        ldB2 <- sum(log(diag(L))) 
-        Q = FALSE # Q is not necesary for solveKiW when cholsky decomposition is used
-    }
-    return(Q)
-}
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
 {
