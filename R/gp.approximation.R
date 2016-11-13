@@ -125,9 +125,11 @@ approximate.posterior.irls <- function(gp, mean, n){
     while(Psi_old - Psi_new > tol && it < maxit){
         Psi_old <- Psi_new
         W <- pmax(W,Wmin)
-        b = W * (f - mean) + d
-        ldB2_result = approximate.posterior.irls.ldB2_exact(W, K)
-        dalpha = b - solveKiW
+        b <- W * (f - mean) + d
+        Q <- approximate.posterior.irls.ldB2_exact(W, K)
+        if(Q == FALSE){ # Q is FALSE when LU decomposition is used in above.
+        dalpha <- b - solveKiW
+        }
     }
 }
 
@@ -197,8 +199,7 @@ approximate.posterior.irls.ldB2_exact <- function(W, K, n){
     if (isWneg){ # switch between Cholesky and LU decomposition mode
         A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
         # Multiply W against K row by row elementwise, and add an identity matrix
-        lu_matrices <- expand(lu(A))# LU decomposition, A = P*L*U
-        Q <- solve( lu_matrices$U, solve(lu_matrices$L,lu_matrices$P) )
+        Q <- solve(A)
     }
     else {
         rootW <- sqrt(W)
@@ -206,7 +207,7 @@ approximate.posterior.irls.ldB2_exact <- function(W, K, n){
         ldB2 <- sum(log(diag(L))) 
         Q = FALSE # Q is not necesary for solveKiW when cholsky decomposition is used
     }
-    retrun(Q)
+    return(Q)
 }
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
