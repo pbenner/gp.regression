@@ -116,6 +116,16 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
 #' @param alpha
 #' @param mean
 #' @param K covariance matrix
+    #alpha matches with gpml.
+    #f, dlp and W like in line 100 (I think they are updated the same).
+    # to do: test search_line
+    #        write solveKiW,
+    #        test solveKiW
+    #        write contents of K.fun,
+    #        test K.fun
+    #        complete code
+    #        test code
+    #        tidy the code, perhaps use a structure to put all the relevant parameters in.
 
 approximate.posterior.irls <- function(gp, mean, n){
 # Numerically stable mode finding. Code translated from GPML 4.0 (BSD)
@@ -136,15 +146,19 @@ approximate.posterior.irls <- function(gp, mean, n){
         Psi_old <- Psi_new
         W_vector <- pmax(W_vector,W_vectorMin)
         b <- W_vector * (f - mean) + d
+        r = K %*% b
         if(any(W_vector<0)){
             A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
             # Multiply W_vector against K row by row elementwise, and add an identity matrix
             Q <- solve(A)
-            # MATLAB:  solveKiW = @(r) bsxfun(@times, solve_chol(L,bsxfun(@times,r,sW)), sW) 
-            dalpha <- b - solve(L,sweep(r,sW,something))
+            dalpha <- b - sweep(W_vector, 2?, Q %*% r, "*") - alpha
         }
         else {
-            solveKiW = @(r) bsxfun(@times,W_vector,Q*r)
+            rootW <- sqrt(W)
+            B <- diag(n) + rootW %*% t(rootW) * K # (c.f. Rasmussen 2006, Eq. 3.26)
+            L <- chol(B)
+            temp <- solve(L * t(L), sweep(r, 2?, rootW, "*"))#this sweep is strange, r and rootW should be both vectors.
+            dalpha <- b - sweep(temp, 2?,  rootW, "*") - alpha #I am working on this now. Whats r? Check 2?.
         }
     }
 }
@@ -200,17 +214,7 @@ approximate.posterior.irls.search_line <- function(interval=c(0,2), gp, s, dalph
     thr_line <- 1e-4           
     alpha <- optimize(approximate.posterior.psi_line,
              interval, dalpha, s, mean, K, gp)#this line works but not tested regorously.
-    
-    #alpha matches with gpml.
-    #f, dlp and W like in line 100 (I think they are updated the same).
-    # to do: test search_line
-    #        write solveKiW,
-    #        test solveKiW
-    #        write contents of K.fun,
-    #        test K.fun
-    #        complete code
-    #        test code
-    #        tidy the code, perhaps use a structure to put all the relevant parameters in.
+   # I should update evrything in batch in this function. 
 }
 
 #' Compute ldB2, and Q if necessary
