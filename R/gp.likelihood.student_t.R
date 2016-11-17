@@ -68,7 +68,7 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
 #' @param model probabilistic model
 #' @param ... arguments to be passed to methods
 
-hessian.likelihood.student_t <- function(likelihood, link, f, yp, n) {
+hessian.likelihood.student_t <- function(likelihood, link, f, yp, n, as_vector = FALSE) {
     # W: Hessian of log p(y|f)
     W     <- diag(n)
     # parameter of the student_t likelihood
