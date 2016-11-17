@@ -107,14 +107,12 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     gp
 }
 
-#' Numerically stable mode finding.
-#' This function and related subroutines are
-#' essentialy a translation of GPML 4.0 (BSD)
+#' Numerically stable mode finding. This function and related subroutines are
+#' essentialy translations of GPML 4.0 (BSD). See GPML for nomenclature.
 #' 
 #' @param gp model Gaussian process
-#' @param gp model Gaussian process
 #' @param alpha
-#' @param mean
+#' @param mean mean of gp
 #' @param K covariance matrix
     #alpha matches with gpml.
     #f, dlp and W like in line 100 (I think they are updated the same).
@@ -128,10 +126,7 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     #        tidy the code, perhaps use a structure to put all the relevant parameters in.
 
 approximate.posterior.irls <- function(gp, mean, n){
-# Numerically stable mode finding. Code translated from GPML 4.0 (BSD)
-# not suer if I need mean here. can I remove K?
-# parameters thac can be optional. Put somewhere else later.
-    alpha <- matrix(0, length(alpha)) #make sure that alpha is a column vector
+    alpha <- matrix(0, n) #make sure that alpha is a column vector
     maxit <-  20 #settings
     W_vectorMin <- 0.0
     tol <- 1e-6
@@ -139,10 +134,10 @@ approximate.posterior.irls <- function(gp, mean, n){
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
     W_vector <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
-    Psi_new <- approximate.posterior.psi(gp, alpha, mean, K)
+    Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     Psi_old <- Inf
-    #variable  "it" comes here in GPML
-    while(Psi_old - Psi_new > tol && it < maxit){
+    it = 0
+    while(Psi_old - Psi_new > tol && it < 20){
         Psi_old <- Psi_new
         W_vector <- pmax(W_vector,W_vectorMin)
         b <- W_vector * (f - mean) + d
@@ -151,31 +146,30 @@ approximate.posterior.irls <- function(gp, mean, n){
             A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
             # Multiply W_vector against K row by row elementwise, and add an identity matrix
             Q <- solve(A)
-            dalpha <- b - sweep(W_vector, 2?, Q %*% r, "*") - alpha
+            dalpha <- b - sweep(W_vector, 2, Q %*% r, "*") - alpha
         }
         else {
-            rootW <- sqrt(W)
+            rootW <- sqrt(W_vector)
             B <- diag(n) + rootW %*% t(rootW) * K # (c.f. Rasmussen 2006, Eq. 3.26)
             L <- chol(B)
-            temp <- solve(L * t(L), sweep(r, 2?, rootW, "*"))#this sweep is strange, r and rootW should be both vectors.
-            dalpha <- b - sweep(temp, 2?,  rootW, "*") - alpha #I am working on this now. Whats r? Check 2?.
+            temp <- solve(L * t(L), sweep(r, 2, rootW, "*"))#this sweep is strange, r and rootW should be both vectors.
+            dalpha <- b - sweep(temp, 2,  rootW, "*") - alpha #I am working on this now. Whats r?
         }
+        #update parameters after search
+        s <- approximate.posterior.irls.search_line(gp, alpha, dalpha, mean, K)
+        alpha <- alpha+dalpha*s
+        f <- K %*% alpha + mean
+        d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
+        W_vector <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
+        it = it + 1
     }
+    return(alpha)
 }
 
-approximate.posterior.irls.ldB2_exact <- function(W_vector, K, n){
-    W_has_negative <- any(W_vector<0)
-    if (W_has_negative){
-        A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
-        # Multiply W_vector against K row by row elementwise, and add an identity matrix
-        Q <- solve(A)
-    }
-    else {
-        Q = FALSE # Q is not necesary for solveKiW when cholsky decomposition is used
-    }
-    return(Q)
-}
-#' Computes psi
+#' Computes psi. The irls search is performed by minimising psi, however
+#' psi_line is used as the objective function in actuality. This is because psi takes
+#' vectors as inputis rather than a scalar, which makes it difficult to use in a
+#' typical optimisation routine.
 #' 
 #' @param gp model Gaussian process
 #' @param alpha
@@ -193,7 +187,24 @@ approximate.posterior.irls.psi  <- function(gp, alpha, mean, K){#changing alpha 
     return(psi)
 }
 
-#' Compute psi_lin
+#' Computes psi_lin, the objective function of the search_line routine.
+#' Given alpha and dalpha as constant vectors, search_line optimises 
+#' s, a scalar, in order to minimise psi.
+#' 
+#' @param alpha vector or a matrix with one column
+#' @param dalpha vector or a matrix with one column
+#' @param s scalar
+#' @param mean 
+#' @param K covariance matrix
+#' @param gp model Gaussian process
+
+approximate.posterior.irls.psi_line <- function(s, alpha, dalpha, mean, K, gp){
+    psi <- approximate.posterior.irls.psi(gp, alpha + s * dalpha, mean, K)
+    return(psi)
+}
+
+
+#' Runs optimisation routine using psi_line as the objective function.
 #' 
 #' @param alpha
 #' @param dalpha
@@ -202,26 +213,15 @@ approximate.posterior.irls.psi  <- function(gp, alpha, mean, K){#changing alpha 
 #' @param K covariance matrix
 #' @param gp model Gaussian process
 
-approximate.posterior.irls.psi_line <- function(alpha, dalpha, s, mean, K, gp){
-    psi <- approximate.posterior.irls.psi(gp, alpha + s * dalpha, mean, K)
-    return(psi)
-}#debug this function.
-
-approximate.posterior.irls.search_line <- function(interval=c(0,2), gp, s, dalpha, mean, K){
+approximate.posterior.irls.search_line <- function(gp, alpha, dalpha, mean, K, s_interval=c(0,2)){
     smin_line <- 0 
     smax_line <- 2           # min/max line search steps size range
     nmax_line <- 10          # maximum number of line search steps
     thr_line <- 1e-4           
-    alpha <- optimize(approximate.posterior.psi_line,
-             interval, dalpha, s, mean, K, gp)#this line works but not tested regorously.
-   # I should update evrything in batch in this function. 
+    result <- optimize(approximate.posterior.irls.psi_line,
+             s_interval, alpha, dalpha, mean, K, gp) # DON'T optimise for alpha, its a vector. Optimise for s.
+     s <- result$objective[[1]]
 }
-
-#' Compute ldB2, and Q if necessary
-#' 
-#' @param W vector of second derivative of log likelihood
-#' @param K covariance matrix
-#' @param n number of parameters of the model
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
 {
