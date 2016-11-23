@@ -133,16 +133,16 @@ approximate.posterior.irls <- function(gp, mean, n){
     K <- gp$kernelf(gp$xp)
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-    W_vector <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
+    W_vector <- as.matrix((diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))))
     Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     Psi_old <- Inf
     it = 0
     while(Psi_old - Psi_new > tol && it < 20){
-        Psi_old <- Psi_new
+#     while(1){
         W_vector <- pmax(W_vector,W_vectorMin)
         b <- W_vector * (f - mean) + d
-        r = K %*% b
-        if(any(W_vector<0)){
+        r = K %*% b# up to here, all the parameters behave the same as gpml
+        if(any(W_vector<0)){#whats inside here is making something different from sloveKiW.
             A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
             # Multiply W_vector against K row by row elementwise, and add an identity matrix
             Q <- solve(A)
@@ -152,15 +152,21 @@ approximate.posterior.irls <- function(gp, mean, n){
             rootW <- sqrt(W_vector)
             B <- diag(n) + rootW %*% t(rootW) * K # (c.f. Rasmussen 2006, Eq. 3.26)
             L <- chol(B)
-            temp <- solve(L * t(L), sweep(r, 2, rootW, "*"))#this sweep is strange, r and rootW should be both vectors.
-            dalpha <- b - sweep(temp, 2,  rootW, "*") - alpha #I am working on this now. Whats r?
-        }
+            #temp <- solve(L * t(L), sweep(r, 2, rootW, "*"))#this sweep is strange, r and rootW should be both vectors.
+            temp <- solve(L, solve(t(L), sweep(r, 1, rootW, "*")))#I get different temp value here!
+            # bellow is consistent with gpml!!!
+            #dalpha <- b - sweep(temp, 2,  rootW, "*") - alpha
+            dalpha <- b - sweep(temp, 1,  rootW, "*") - alpha #sweep(...) gives different result
+            #In above, I get dalpha with slightly different value compared to gpml.
+                    }
         #update parameters after search
-        s <- approximate.posterior.irls.search_line(gp, alpha, dalpha, mean, K)
-        alpha <- alpha+dalpha*s
+        Psi_old <- Psi_new
+        optimisation_step <- approximate.posterior.irls.search_line(gp, alpha, dalpha, mean, K)
+        Psi_new = optimisation_step$objective
+        alpha <- alpha + dalpha * optimisation_step$minimum
         f <- K %*% alpha + mean
         d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-        W_vector <- diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))
+        W_vector <- as.matrix(diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n)))
         it = it + 1
     }
     return(alpha)
@@ -220,7 +226,6 @@ approximate.posterior.irls.search_line <- function(gp, alpha, dalpha, mean, K, s
     thr_line <- 1e-4           
     result <- optimize(approximate.posterior.irls.psi_line,
              s_interval, alpha, dalpha, mean, K, gp) # DON'T optimise for alpha, its a vector. Optimise for s.
-     s <- result$objective[[1]]
 }
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
