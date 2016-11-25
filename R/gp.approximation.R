@@ -68,7 +68,7 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     }
     i <- 0
     if (method == "newton"){
-        repeat { #REFACTOR: make newton algorythm a separate method.
+        repeat {
             i <- i + 1
             # run Newton steps until convergence
             f <- approximate.posterior.step(f, yp, mean, L, likelihood, link, n)
@@ -130,14 +130,14 @@ approximate.posterior.irls <- function(gp, mean, n){
     maxit <-  20 #settings
     W_vectorMin <- 0.0
     tol <- 1e-6
-    K <- gp$kernelf(gp$xp)
+    K <- gp$kernelf(gp$xp) # I get K = 10 here. it is supposed to be 100 according to gpml.
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
     W_vector <- as.matrix((diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))))
     Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     Psi_old <- Inf
     it = 0
-    while(Psi_old - Psi_new > tol && it < 20){
+    while(Psi_old - Psi_new > tol && it < 20){# change this to repeat -> break
 #     while(1){
         W_vector <- pmax(W_vector,W_vectorMin)
         b <- W_vector * (f - mean) + d
