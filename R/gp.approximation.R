@@ -80,9 +80,11 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
             }
             f.old <- f
             }
-    } else if (method == "irsl"){
-        f <- approximate.posterior.irls() 
-    }
+    } else if (method == "rasmussen" || method == "irls" ){
+    #Rasmussen's numerically stable mode finding.
+    #Translated from infLaplace.m of GPMLL 4.0 (BSD licence)
+        f <- approximate.posterior.irls(gp, mean, n) 
+    }  else { stop("Invalid approximate method specified.") }
     # evaluate the derivative at the current position
     d <- gradient(likelihood, link, f, yp, n)
     W <- -hessian(likelihood, link, f, yp, n)
@@ -127,22 +129,21 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
 
 approximate.posterior.irls <- function(gp, mean, n){
     alpha <- matrix(0, n) #make sure that alpha is a column vector
-    maxit <-  20 #settings
+    maxit <-  100 #settings
     W_vectorMin <- 0.0
     tol <- 1e-6
-    K <- gp$kernelf(gp$xp) # I get K = 10 here. it is supposed to be 100 according to gpml.
+    K <- gp$kernelf(gp$xp) 
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
     W_vector <- as.matrix((diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))))
     Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     Psi_old <- Inf
     it = 0
-    while(Psi_old - Psi_new > tol && it < 20){# change this to repeat -> break
-#     while(1){
+    while(Psi_old - Psi_new > tol && it < maxit){# change this to repeat -> break
         W_vector <- pmax(W_vector,W_vectorMin)
         b <- W_vector * (f - mean) + d
-        r = K %*% b# up to here, all the parameters behave the same as gpml
-        if(any(W_vector<0)){#whats inside here is making something different from sloveKiW.
+        r = K %*% b
+        if(any(W_vector<0)){
             A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
             # Multiply W_vector against K row by row elementwise, and add an identity matrix
             Q <- solve(A)
@@ -152,12 +153,8 @@ approximate.posterior.irls <- function(gp, mean, n){
             rootW <- sqrt(W_vector)
             B <- diag(n) + rootW %*% t(rootW) * K # (c.f. Rasmussen 2006, Eq. 3.26)
             L <- chol(B)
-            #temp <- solve(L * t(L), sweep(r, 2, rootW, "*"))#this sweep is strange, r and rootW should be both vectors.
-            temp <- solve(L, solve(t(L), sweep(r, 1, rootW, "*")))#I get different temp value here!
-            # bellow is consistent with gpml!!!
-            #dalpha <- b - sweep(temp, 2,  rootW, "*") - alpha
-            dalpha <- b - sweep(temp, 1,  rootW, "*") - alpha #sweep(...) gives different result
-            #In above, I get dalpha with slightly different value compared to gpml.
+            temp <- solve(L, solve(t(L), sweep(r, 1, rootW, "*")))
+            dalpha <- b - sweep(temp, 1,  rootW, "*") - alpha 
                     }
         #update parameters after search
         Psi_old <- Psi_new
@@ -169,7 +166,7 @@ approximate.posterior.irls <- function(gp, mean, n){
         W_vector <- as.matrix(diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n)))
         it = it + 1
     }
-    return(alpha)
+    return(f)
 }
 
 #' Computes psi. The irls search is performed by minimising psi, however
@@ -225,7 +222,7 @@ approximate.posterior.irls.search_line <- function(gp, alpha, dalpha, mean, K, s
     nmax_line <- 10          # maximum number of line search steps
     thr_line <- 1e-4           
     result <- optimize(approximate.posterior.irls.psi_line,
-             s_interval, alpha, dalpha, mean, K, gp) # DON'T optimise for alpha, its a vector. Optimise for s.
+             s_interval, alpha, dalpha, mean, K, gp) 
 }
 
 approximate.posterior.summary <- function(gp, k1, k2, k3, ...)
