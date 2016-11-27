@@ -50,6 +50,9 @@ new.gp <- function(mean, kernelf, dim=1, likelihood=new.likelihood("normal", 1.0
     if (any(class(likelihood) == "likelihood.gamma") && is.null(link)) {
         stop("A link function is required for the gamma likelihood model!")
     }
+    if (any(class(likelihood) == "likelihood.student_t") && is.null(link)) {
+       link = new.link.null()
+    }
 
     gp <- list(xp               = NULL,       # data
                yp               = NULL,
