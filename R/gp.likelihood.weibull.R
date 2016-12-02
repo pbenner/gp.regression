@@ -70,7 +70,7 @@ gradient.likelihood.weibull <- function(likelihood, link, f, yp, n) {
 
 hessian.likelihood.weibull <- function(likelihood, link, f, yp, n, form = "matrix") {
     # W: Hessian of log p(y|f)
-    W     <- diag(n)
+    W <- vector(mode = "numeric", length = n)
     # parameter of the weibull likelihood
     ka <- likelihood$ka
     sigma <- likelihood$sigma
@@ -83,6 +83,5 @@ hessian.likelihood.weibull <- function(likelihood, link, f, yp, n, form = "matri
         W[[i,i]] <- (df+1)*(rsqwr-df*sn2)/a^2;#check df is correctly defined, likely to need +1.
     }
     if (form == "vector") return(W)
-    else W     <- diag(n)
-    return (W)
+    else return(diag(n))
 }
