@@ -135,7 +135,7 @@ approximate.posterior.irls <- function(gp, mean, n){
     K <- gp$kernelf(gp$xp) 
     f <- K %*% alpha + mean
     d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-    W_vector <- as.matrix((diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n))))
+    W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
     Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     Psi_old <- Inf
     it = 0
@@ -163,7 +163,7 @@ approximate.posterior.irls <- function(gp, mean, n){
         alpha <- alpha + dalpha * optimisation_step$minimum
         f <- K %*% alpha + mean
         d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-        W_vector <- as.matrix(diag(-hessian(gp$likelihood, gp$link, f, gp$yp, n)))
+        W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
         it = it + 1
     }
     return(f)

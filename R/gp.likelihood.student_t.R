@@ -31,7 +31,7 @@ new.likelihood.student_t <- function(df, sigma, ..) {
 logp.likelihood.student_t <- function(model, y, mean, ...)
 {
     if (!is.vector(mean)) {
-        mean <- as.vector(mean) #mean defined against what?
+        mean <- as.vector(mean)
     }
     if (!is.vector(y)) {
         y <- as.vector(y)
@@ -68,14 +68,14 @@ gradient.likelihood.student_t <- function(likelihood, link, f, yp, n) {
 #' @param model probabilistic model
 #' @param ... arguments to be passed to methods
 
-hessian.likelihood.student_t <- function(likelihood, link, f, yp, n, as_vector = FALSE) {
+hessian.likelihood.student_t <- function(likelihood, link, f, yp, n, form = "matrix") {
     # W: Hessian of log p(y|f)
-    W     <- diag(n)
+    W <- vector(mode = "numeric", length = n)
     # parameter of the student_t likelihood
     df <- likelihood$df
     sigma <- likelihood$sigma
     sn2 = sigma^2
-    for (i in 1:n) {
+    for (i in 1:n) {#FIXME: vectorise the for loop.
         # current f value at x[[i]]
         fx  <- f[[i]]
         # observation at position x[[i]]
@@ -84,7 +84,9 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n, as_vector =
         rsqwr <- r*r
         a <- rsqwr+df*sigma^2;
         # Hessian
-        W[[i,i]] <- (df+1)*(rsqwr-df*sn2)/a^2;#check df is correctly defined, likely to need +1.
+        W[[i]] <- (df+1)*(rsqwr-df*sn2)/a^2;#check df is correctly defined, likely to need +1.
     }
+    if (form == "vector") return(W)
+    else W     <- diag(n)
     return (W)
 }
