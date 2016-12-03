@@ -128,7 +128,7 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
     #        tidy the code, perhaps use a structure to put all the relevant parameters in.
 
 approximate.posterior.irls <- function(gp, mean, n){
-    alpha <- matrix(0, n) #make sure that alpha is a column vector
+    alpha <- matrix(0, n)
     maxit <-  100 #settings
     W_vectorMin <- 0.0
     tol <- 1e-6
