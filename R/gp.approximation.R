@@ -129,22 +129,22 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
 
 approximate.posterior.irls <- function(gp, mean, n){
     alpha <- matrix(0, n)
-    maxit <-  100 #settings
+    maxit <-  100 #setting
     W_vectorMin <- 0.0
     tol <- 1e-6
     K <- gp$kernelf(gp$xp) 
-    f <- K %*% alpha + mean
-    d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-    W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
-    Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
-    Psi_old <- Inf
-    it = 0
-    while(Psi_old - Psi_new > tol && it < maxit){# change this to repeat -> break
+    Psi_new <- Inf
+    it <- 0
+    repeat{# change this to repeat -> break
+        Psi_old <- Psi_new
+        f <- K %*% alpha + mean
+        d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
+        W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
         W_vector <- pmax(W_vector,W_vectorMin)
         b <- W_vector * (f - mean) + d
         r = K %*% b
         if(any(W_vector<0)){
-            A <- sweep(K,2,as.matrix(W,n,1),"*") + diag(n) 
+            A <- sweep(K, 2, as.matrix(W_vector, n, 1), "*") + diag(n) 
             # Multiply W_vector against K row by row elementwise, and add an identity matrix
             Q <- solve(A)
             dalpha <- b - sweep(W_vector, 2, Q %*% r, "*") - alpha
@@ -157,14 +157,11 @@ approximate.posterior.irls <- function(gp, mean, n){
             dalpha <- b - sweep(temp, 1,  rootW, "*") - alpha 
                     }
         #update parameters after search
-        Psi_old <- Psi_new
         optimisation_step <- approximate.posterior.irls.search_line(gp, alpha, dalpha, mean, K)
         Psi_new = optimisation_step$objective
         alpha <- alpha + dalpha * optimisation_step$minimum
-        f <- K %*% alpha + mean
-        d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
-        W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
         it = it + 1
+        if (Psi_old - Psi_new < tol || it > maxit) break
     }
     return(f)
 }
