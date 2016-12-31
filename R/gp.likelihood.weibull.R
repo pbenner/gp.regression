@@ -21,9 +21,8 @@
 #' @export
 
 # implementation of non-standardized student's t likelihood.
-new.likelihood.weibull <- function(df, sigma, ..) {
-    #df: degree of freedom, sigma: scale parameter.
-    result <- list(ka = ka, sigma = sigma) 
+new.likelihood.weibull <- function(shape, ..) {
+    result <- list(shape = shape) 
     class(result) <- c("likelihood.weibull", "likelihood")
     result
 }
@@ -31,15 +30,15 @@ new.likelihood.weibull <- function(df, sigma, ..) {
 logp.likelihood.weibull <- function(model, y, mean, ...)
 {
     if (!is.vector(mean)) {
-        mean <- as.vector(mean) #mean defined against what?
+        mean <- as.vector(mean)#figure out how to set mean
     }
     if (!is.vector(y)) {
         y <- as.vector(y)
     }
-    df <- model$df #Note: This line overrides df, a function in the R global namespace
-    sigma <- model$sigma
-    result <- dt( (mean - y) / sigma, df, 0, log = TRUE) - log(sigma)
-    return (as.matrix(result))# dt (R) and tpdf (matlab) matches
+    shape <- model$shape #I want to keep the shape parameter constant,
+    scale <- mean / ( gamma( 1 + 1 / shape) ) #so here I calculate the scale parameter from mean.
+    result <- dweibull( y, shape = shape, scale = scale, log = TRUE)
+    return (as.matrix(result))
 }
 
 gradient.likelihood.weibull <- function(likelihood, link, f, yp, n) {
