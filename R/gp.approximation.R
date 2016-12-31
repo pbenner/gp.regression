@@ -43,7 +43,7 @@ approximate.posterior.step <- function(f, yp, mean, L, likelihood, link, n)
     return (f)
 }
 
-approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="newton", ...)
+approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, modefinding="newton", ...)
 {
     print("approximating posterior")
     xp         <- gp$xp
@@ -67,7 +67,7 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
         f.old <- f
     }
     i <- 0
-    if (method == "newton"){
+    if (modefinding == "newton"){
         repeat {
             i <- i + 1
             # run Newton steps until convergence
@@ -80,11 +80,11 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, method="ne
             }
             f.old <- f
             }
-    } else if (method == "rasmussen" || method == "irls" ){
+    } else if (modefinding == "rasmussen" || modefinding == "irls" ){
     #Rasmussen's numerically stable mode finding.
     #Translated from infLaplace.m of GPMLL 4.0 (BSD licence)
         f <- approximate.posterior.irls(gp, mean, n) 
-    }  else { stop("Invalid approximate method specified.") }
+    }  else { stop("Invalid approximate modefinding specified.") }
     # evaluate the derivative at the current position
     d <- gradient(likelihood, link, f, yp, n)
     W <- -hessian(likelihood, link, f, yp, n)
