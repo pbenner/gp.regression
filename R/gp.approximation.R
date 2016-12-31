@@ -136,7 +136,6 @@ approximate.posterior.irls <- function(gp, mean, n){
     Psi_new <- Inf
     it <- 0
     repeat{# change this to repeat -> break
-        Psi_old <- Psi_new
         f <- K %*% alpha + mean
         d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
         W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
@@ -158,6 +157,7 @@ approximate.posterior.irls <- function(gp, mean, n){
                     }
         #update parameters after search
         optimisation_step <- approximate.posterior.irls.search_line(gp, alpha, dalpha, mean, K)
+        Psi_old <- Psi_new
         Psi_new = optimisation_step$objective
         alpha <- alpha + dalpha * optimisation_step$minimum
         it = it + 1
