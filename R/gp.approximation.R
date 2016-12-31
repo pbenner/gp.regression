@@ -159,6 +159,7 @@ approximate.posterior.irls <- function(gp, mean, n){
         optimisation_step <- approximate.posterior.irls.search_line(gp, alpha, dalpha, mean, K)
         Psi_old <- Psi_new
         Psi_new = optimisation_step$objective
+        print(Psi_new)
         alpha <- alpha + dalpha * optimisation_step$minimum
         it = it + 1
         if (Psi_old - Psi_new < tol || it > maxit) break
