@@ -164,7 +164,6 @@ approximate.posterior.irls <- function(gp, mean, n){
         it = it + 1
         if (Psi_old - Psi_new < tol || it > maxit) break
     }
-    print(Psi_new)
     return(f)
 }
 
