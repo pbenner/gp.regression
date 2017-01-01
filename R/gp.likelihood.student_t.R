@@ -87,5 +87,5 @@ hessian.likelihood.student_t <- function(likelihood, link, f, yp, n, form = "mat
         W[[i]] <- (df+1)*(rsqwr-df*sn2)/a^2;#check df is correctly defined, likely to need +1.
     }
     if (form == "vector") return(W)
-    else return(diag(n))
+    else return(diag(W))
 }
