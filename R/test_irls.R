@@ -1,7 +1,7 @@
 source('~/Documents/voleon_problem1/script2.R')
 result = matrix(NaN, 2^6,1)
 index = 1
-debug(approximate.posterior.irls)
+#debug(approximate.posterior.irls)
 
 for (kernel_hyp2 in c(10^2,1)) {#this guy here needs to be squared because, unlike gpml, gp.regression requires "sigma^2".
 for (kernel_hyp1 in c(1,10)) {

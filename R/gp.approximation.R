@@ -133,7 +133,8 @@ approximate.posterior.irls <- function(gp, mean, n){
     W_vectorMin <- 0.0
     tol <- 1e-6
     K <- gp$kernelf(gp$xp) 
-    Psi_new <- Inf
+    #Psi_new <- Inf
+    Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     it <- 0
     repeat{# change this to repeat -> break
         f <- K %*% alpha + mean
