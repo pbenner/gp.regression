@@ -133,11 +133,10 @@ approximate.posterior.irls <- function(gp, mean, n){
     W_vectorMin <- 0.0
     tol <- 1e-6
     K <- gp$kernelf(gp$xp) 
-    #Psi_new <- Inf
     Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
     f <- K %*% alpha + mean
     it <- 0
-    repeat{# change this to repeat -> break
+    repeat{
         d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
         W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
         W_vector <- pmax(W_vector,W_vectorMin)
