@@ -87,7 +87,7 @@ approximate.posterior <- function(gp, epsilon=0.00001, verbose=FALSE, modefindin
     }  else { stop("Invalid approximate modefinding specified.") }
     # evaluate the derivative at the current position
     d <- gradient(likelihood, link, f, yp, n)
-    W <- -hessian(likelihood, link, f, yp, n) #this line is screwed up.
+    W <- -hessian(likelihood, link, f, yp, n)
     I <- sign(W)
     V <- sqrt(abs(W))
     B <- I + (V %*% t(L)) %*% (L %*% V)
