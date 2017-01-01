@@ -135,9 +135,9 @@ approximate.posterior.irls <- function(gp, mean, n){
     K <- gp$kernelf(gp$xp) 
     #Psi_new <- Inf
     Psi_new <- approximate.posterior.irls.psi(gp, alpha, mean, K)
+    f <- K %*% alpha + mean
     it <- 0
     repeat{# change this to repeat -> break
-        f <- K %*% alpha + mean
         d <- gradient(gp$likelihood, gp$link, f, gp$yp, n)
         W_vector <- as.matrix(-hessian(gp$likelihood, gp$link, f, gp$yp, n, form = 'vector'))
         W_vector <- pmax(W_vector,W_vectorMin)
@@ -161,6 +161,7 @@ approximate.posterior.irls <- function(gp, mean, n){
         Psi_old <- Psi_new
         Psi_new = optimisation_step$objective
         alpha <- alpha + dalpha * optimisation_step$minimum
+        f <- K %*% alpha + mean
         it = it + 1
         if (Psi_old - Psi_new < tol || it > maxit) break
     }
