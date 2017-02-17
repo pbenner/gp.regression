@@ -29,12 +29,10 @@ call.kernel <- function(name, x, y, ...)
   }
 
   if (is.null(y)) {
-   # .Call(name, x, x, ..., PACKAGE="gp.regression")#commenting for debbugging.
-    .Call(name, x, x, ...)
+    .Call(name, x, x, ..., PACKAGE="gp.regression")
   }
   else {
-    #.Call(name, x, y, ..., PACKAGE="gp.regression")#commenting for debbugging.
-    .Call(name, x, y, ...)#, PACKAGE="gp.regression")
+    .Call(name, x, y, ..., PACKAGE="gp.regression")
   }
 }
 
