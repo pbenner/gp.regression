@@ -182,6 +182,6 @@ performs poorly. In contrast, a Gaussian process with a Student's t likelihood
                     verbose = TRUE, modefinding='rasmussen')
 	plot(gp_t,x)
 
-![Heavy-tail](demo/heavytail_student.png)
-
 captures the ground truth well. 
+
+![Heavy-tail](demo/heavytail_student.png)
