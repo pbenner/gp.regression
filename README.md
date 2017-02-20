@@ -174,9 +174,7 @@ on which a Gaussian process with a Gaussian likelihood model
 
 ![Heavy-tail](demo/heavytail_normal.png)
 
-performs poorly.
-
-In contrast, a Gaussian process with a Student's-t likelihood 
+performs poorly. In contrast, a Gaussian process with a Student's-t likelihood 
 	
 	gp_t <- new.gp(0, kernel.squared.exponential(2, 2),
              likelihood=new.likelihood("t", df, sigma))
