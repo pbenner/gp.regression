@@ -167,6 +167,10 @@ Heavy-tailed distributions, such as Student's t-distributioni, are useful for mo
 
 on which a gaussian likelihood model performs poorly as bellow.
 
+	gp_n <- new.gp(0, kernel.squared.exponential(2, 2),
+	likelihood=new.likelihood("normal", 0.1))
+	gp_n <- posterior(gp_n, x, y)
+	p <- plot(gp_n,x)
 
 ![Heavy-tail](demo/heavytail_normal.png)
 
@@ -177,6 +181,7 @@ In contrast, a Gaussian process with a Student's-t likelihood
 	gp_t <- posterior(gp_t, x, y, ep= 0.00000001, epsilon = 0.000001,
                     verbose = TRUE, modefinding='rasmussen')
 	plot(gp_t,x)
+
 ![Heavy-tail](demo/heavytail_student.png)
 
 captures the ground trouth much better.
