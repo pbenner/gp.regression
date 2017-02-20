@@ -151,7 +151,7 @@ gives the following result
 
 ### Robust regression with heavy-tailed distributions
 
-Heavy-tailed distributions, such as Student's t-distribution, are useful for modeling data that include outliers. The stabilized Newton's method, which was originally implemented in [GPML](http://www.gaussianprocess.org/gpml/code/matlab/doc/), can be used for performing inference with Student's-t likelihood, Let us first generate a corrupted sin wave by
+Heavy-tailed distributions, such as Student's t-distribution, are useful for modeling data that include outliers. The stabilized Newton's method (originally implemented in [GPML](http://www.gaussianprocess.org/gpml/code/matlab/doc/)) can be used for performing inference with Student's-t likelihood, which can be used for robust regression. Let us first generate a corrupted sin wave by
 
 	makeCorruptedSin <- function(x, basenoise, number_of_corruption, corruptionwidth){
             y_clean = sin(x)
