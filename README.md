@@ -165,12 +165,14 @@ Heavy-tailed distributions, such as Student's t-distributioni, are useful for mo
 	x = seq(from=-3.14, to=3.14, by=0.1)
 	y = makeCorruptedSin(x, basenoise = 0.1, number_of_corruption = 15, corruptionwidth = 10)
 
-on which a gaussian likelihood model performs poorly as bellow.
+on which a Gaussian process with a Gaussian likelihood model 
 
 	gp_n <- new.gp(0, kernel.squared.exponential(2, 2),
 	likelihood=new.likelihood("normal", 0.1))
 	gp_n <- posterior(gp_n, x, y)
-	p <- plot(gp_n,x)
+	plot(gp_n,x)
+
+performs poorly.
 
 ![Heavy-tail](demo/heavytail_normal.png)
 
