@@ -148,3 +148,34 @@ where the second Gaussian process uses a gamma likelihood model in combination w
 gives the following result
 
 ![Heteroscedastic GP](demo/mcycle.png)
+
+### Heavy-taild distribution
+
+Heavy-tailed distributions, such as Student's t-distributioni, are useful for modeling data that include outliyers. The stabilized Newton's method, which was originally implemented in [GPML](http://www.gaussianprocess.org/gpml/code/matlab/doc/), can be used for performing inference with Student's-t likelihood, Let us first generate a corrupted sin wave by
+
+	makeCorruptedSin <- function(x, basenoise, number_of_corruption, corruptionwidth){
+            y_clean = sin(x)
+            y = y_clean + rnorm(length(x),sd = basenoise)
+            corruption_points = floor(runif(min=1, max=length(x),n = number_of_corruption))
+            for (index in corruption_points){
+                y[[index]] = y[[index]] + runif(min=-corruptionwidth, max=corruptionwidth, n = 1)
+            }
+            return(y)
+	}
+	x = seq(from=-3.14, to=3.14, by=0.1)
+	y = makeCorruptedSin(x, basenoise = 0.1, number_of_corruption = 15, corruptionwidth = 10)
+
+on which a gaussian likelihood model performs poorly as bellow.
+
+
+![Heavy-tail](demo/heavytail_normal.png)
+
+In contrast, a Gaussian process with a Student's-t likelihood 
+	
+	gp_t <- new.gp(0, kernel.squared.exponential(2, 2),
+             likelihood=new.likelihood("t", df, sigma))
+	gp_t <- posterior(gp_t, x, y, ep= 0.00000001, epsilon = 0.000001,
+                    verbose = TRUE, modefinding='rasmussen')
+	plot(gp_t,x)
+![Heavy-tail](demo/heavytail_student.png)
+captures the ground trouth much better.
