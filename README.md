@@ -163,7 +163,7 @@ Heavy-tailed distributions, such as Student's t-distribution, are useful for mod
             return(y)
 	}
 	x = seq(from=-3.14, to=3.14, by=0.1)
-	y = makeCorruptedSin(x, basenoise = 0.1, number_of_corruption = 15, corruptionwidth = 10)
+	y = makeCorruptedSin(x, basenoise = 0.1, number_of_corruption = 25, corruptionwidth = 4)
 
 on which a Gaussian process with a Gaussian likelihood model 
 
