@@ -172,9 +172,9 @@ on which a Gaussian process with a Gaussian likelihood model
 	gp_n <- posterior(gp_n, x, y)
 	plot(gp_n,x)
 
-performs poorly.
-
 ![Heavy-tail](demo/heavytail_normal.png)
+
+performs poorly.
 
 In contrast, a Gaussian process with a Student's-t likelihood 
 	
