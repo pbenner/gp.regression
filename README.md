@@ -149,7 +149,7 @@ gives the following result
 
 ![Heteroscedastic GP](demo/mcycle.png)
 
-### Heavy-taild distribution
+### Robust regression with heavy-tailed distributions
 
 Heavy-tailed distributions, such as Student's t-distributioni, are useful for modeling data that include outliyers. The stabilized Newton's method, which was originally implemented in [GPML](http://www.gaussianprocess.org/gpml/code/matlab/doc/), can be used for performing inference with Student's-t likelihood, Let us first generate a corrupted sin wave by
 
@@ -174,10 +174,10 @@ on which a Gaussian process with a Gaussian likelihood model
 
 ![Heavy-tail](demo/heavytail_normal.png)
 
-performs poorly. In contrast, a Gaussian process with a Student's-t likelihood 
+performs poorly. In contrast, a Gaussian process with a Student's t likelihood 
 	
 	gp_t <- new.gp(0, kernel.squared.exponential(2, 2),
-             likelihood=new.likelihood("t", df, sigma))
+             likelihood=new.likelihood("t", 2.1, 0.1))
 	gp_t <- posterior(gp_t, x, y, ep= 0.00000001, epsilon = 0.000001,
                     verbose = TRUE, modefinding='rasmussen')
 	plot(gp_t,x)
