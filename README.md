@@ -184,4 +184,4 @@ performs poorly. In contrast, a Gaussian process with a Student's t likelihood
 
 ![Heavy-tail](demo/heavytail_student.png)
 
-captures the ground truth much better.
+captures the ground truth well. 
