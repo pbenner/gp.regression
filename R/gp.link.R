@@ -28,6 +28,10 @@ new.link <- function(type = "probit", ...)
     else if (type == "logistic") {
         new.link.logistic(...)
     }
+    else if (type == "null") { # A null link function doesn't do anything. 
+    #For likelihood models that doesn't require link functions.
+        new.link.null(...)
+    }
     else {
         stop("Unknown type.")
     }
@@ -56,6 +60,17 @@ new.link.logistic <- function(...) {
     class(result) <- c("link.logistic", "link")
     result
 }
+
+new.link.null <- function(...) {
+    # A null link object doesn't do anything. 
+    # It can be used in likelihood models that doesn't require link functions for Laplace approximation.
+    result   <- list(link                = function(x) x, # link function
+                     response            = NULL,
+                     response.derivative = NULL)
+    class(result) <- c("link.null", "link")
+    result
+}
+
 
 #' Summarize the posterior of a Gaussian process equipped with a probit link function
 #' 

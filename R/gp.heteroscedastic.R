@@ -60,7 +60,7 @@ posterior.gp.heteroscedastic <- function(model, xp, yp, ep = NULL,
     }
     # new gp.1 evaluated at measurement locations xp
     gp.1 <- model$gp
-    gp.1 <- posterior(gp.1, xp, yp, ep=ep.init, verbose=verbose...)
+    gp.1 <- posterior(gp.1, xp, yp, ep=ep.init, verbose=verbose, ...)
     # keep a copy of the mean
     mean <- summarize(gp.1, xp, ...)$mean
     repeat {

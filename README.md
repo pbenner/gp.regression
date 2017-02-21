@@ -148,3 +148,41 @@ where the second Gaussian process uses a gamma likelihood model in combination w
 gives the following result
 
 ![Heteroscedastic GP](demo/mcycle.png)
+
+### Robust regression with heavy-tailed distributions
+
+Heavy-tailed distributions, such as Student's t-distribution, are useful for modeling data that include outliers. Rasmussen's mode finding (a stabilized Newton's method, originally implemented in [GPML](http://www.gaussianprocess.org/gpml/code/matlab/doc/)) can be used for performing inference with Student's-t likelihood, which can be used for robust regression. Let us first generate a corrupted sin wave by
+
+	makeCorruptedSin <- function(x, basenoise, number_of_corruption, corruptionwidth){
+            y_clean = sin(x)
+            y = y_clean + rnorm(length(x),sd = basenoise)
+            corruption_points = floor(runif(min=1, max=length(x),n = number_of_corruption))
+            for (index in corruption_points){
+                y[[index]] = y[[index]] + runif(min=-corruptionwidth, max=corruptionwidth, n = 1)
+            }
+            return(y)
+	}
+        
+	x = seq(from=-3.14, to=3.14, by=0.1)
+	y = makeCorruptedSin(x, basenoise = 0.1, number_of_corruption = 25, corruptionwidth = 4)
+
+on which a Gaussian process with a Gaussian likelihood model 
+
+	gp_n <- new.gp(0, kernel.squared.exponential(2, 2),
+	likelihood=new.likelihood("normal", 0.1))
+	gp_n <- posterior(gp_n, x, y)
+	plot(gp_n,x)
+
+![Heavy-tail](demo/heavytail_normal.png)
+
+performs poorly. In contrast, a Gaussian process with a Student's t likelihood 
+	
+	gp_t <- new.gp(0, kernel.squared.exponential(2, 2),
+             likelihood=new.likelihood("t", 2.1, 0.1))
+	gp_t <- posterior(gp_t, x, y, ep= 0.00000001, epsilon = 0.000001,
+                    verbose = TRUE, modefinding='rasmussen')
+	plot(gp_t,x)
+
+captures the ground truth well. 
+
+![Heavy-tail](demo/heavytail_student.png)

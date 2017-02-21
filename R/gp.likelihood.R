@@ -28,6 +28,9 @@ new.likelihood <- function(type, ...)
     else if (type == "gamma") {
         new.likelihood.gamma(...)
     }
+    else if (type == "student_t" || type == "t") {
+        new.likelihood.student_t(...)
+    }
     else {
         stop("Unknown type.")
     }

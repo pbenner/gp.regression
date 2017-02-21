@@ -50,6 +50,9 @@ new.gp <- function(mean, kernelf, dim=1, likelihood=new.likelihood("normal", 1.0
     if (any(class(likelihood) == "likelihood.gamma") && is.null(link)) {
         stop("A link function is required for the gamma likelihood model!")
     }
+    if (any(class(likelihood) == "likelihood.student_t") && is.null(link)) {
+       link = new.link("null")
+    }
 
     gp <- list(xp               = NULL,       # data
                yp               = NULL,
@@ -125,7 +128,9 @@ summarize.gp <- function(model, x, return.covariance = FALSE, ...)
             # propagate mean and variance through the link function
             # (c.f. Rasmussen 2006, Eq. 3.25)
             covariance           <- NULL
-            list[mean, variance] <- summarize(gp$link, mean, variance, ...)
+            if (!class(gp$link)[[1]] == "link.null"){
+                list[mean, variance] <- summarize(gp$link, mean, variance, ...)
+            }
         }
         else {
             # posterior mean
@@ -214,7 +219,7 @@ posterior.gp <- function(model, xp, yp, ep=NULL, ...)
         }
     }
     # update cholesky decomposition and its inverse
-    tmp <- cholesky.inverse.update(gp$prior.sigma.L, gp$prior.sigma.Linv, A12, A22)
+    tmp <- cholesky.inverse.update(gp$prior.sigma.L, gp$prior.sigma.Linv, A12, A22)#error occures here when t-likelihood is used with ep=NULL.
     gp$prior.sigma.L    <- tmp$K
     gp$prior.sigma.Linv <- tmp$Kinv
 
@@ -366,8 +371,8 @@ maximize.marginal.likelihood <- function(model, ...)
 #' Compute gradient of the marginal likelihood of a Gaussian process with respect
 #' to the kernel parameters
 #' 
-#' @param model Gaussian process
-#' @param get.kernel function that returns the kernel function for the given parameters
+#' @param moden Gaussian process
+#' @param get.kernel function (specified as a variable or string) that returns the (programatic) kernel function for the given parameters.
 #' @param init initial parameters
 #' @param xp positions of measurements
 #' @param yp measured values
