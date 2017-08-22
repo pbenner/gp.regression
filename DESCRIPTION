@@ -20,6 +20,7 @@ Date: 03-03-2012
 Collate:
     'gp.R'
     'gp.approximation.R'
+    'gp.approximation.stabilized.R'
     'gp.goodness.R'
     'gp.heteroscedastic.R'
     'gp.information.R'
