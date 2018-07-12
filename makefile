@@ -28,4 +28,3 @@ clean:
 	$(RM) -r $(PACKAGE).pdf
 	$(RM) -r man
 	$(RM) ../$(TARGET)
-	$(RM) NAMESPACE
